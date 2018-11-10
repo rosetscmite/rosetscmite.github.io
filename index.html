@@ -259,6 +259,166 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/10/利用Maltego平台生成攻击溯源图/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/10/利用Maltego平台生成攻击溯源图/" itemprop="url">利用Maltego平台生成攻击溯源图</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-10T22:56:11+08:00">
+                2018-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/安全建设/" itemprop="url" rel="index">
+                    <span itemprop="name">安全建设</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&#160; &#160; &#160; &#160;最近没啥事打开kali想玩玩没有用过的工具，就打开了Maltego，很早以前用过但没有深入的研究过，就去官网看看文档，对自己公司收集一些信息，发现画出来的图还不错，其中的关联关系表达较为清晰。刚好看到Maltego支持自定义的Transform,突然灵机一动，最近公司在研究攻击溯源图，那我能否通过自定义的Transform来生成一份攻击溯源图呢？</p>
+<h3 id="行动开始"><a href="#行动开始" class="headerlink" title="行动开始"></a>行动开始</h3><p>&#160; &#160; &#160; &#160;我们从elasticsearch中抽取告警数据和日志数据来进行分析，所以这里先写好一个需要调用的es查询语句的class,由于Maltego本身是一个社工平台，一般不会由多个元素作为条件去溯源数据，所以本身的框架只支持引入一个上层变量，其他的变量需要手动输入，所以这里写的es查询语句中，我依照现有的数据把src_address字段写死。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python</span><br><span class="line"># -*- coding: UTF-8 -*-</span><br><span class="line"># developer: Lawliet</span><br><span class="line"># dsl.py</span><br><span class="line"></span><br><span class="line">class dsl(object):</span><br><span class="line">    # 定义ES地址</span><br><span class="line">    def es_ip(self):</span><br><span class="line">        es_host_ip = &quot;172.16.100.29&quot;</span><br><span class="line">        return es_host_ip</span><br><span class="line">    # 根据源地址获取告警</span><br><span class="line">    def Dsl_alert_from_srcip(self, src_ip):</span><br><span class="line">        body = &#123;</span><br><span class="line">            &quot;size&quot;: 0,</span><br><span class="line">            &quot;query&quot;: &#123;</span><br><span class="line">                &quot;bool&quot;: &#123;</span><br><span class="line">                    &quot;must&quot;: [</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;src_address&quot;: src_ip</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_alarm_name&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;alarm_name&quot;,</span><br><span class="line">                        &quot;size&quot;: 100</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return body</span><br><span class="line">    # 根据告警获取攻击源地址</span><br><span class="line">    def Dsl_srcip_from_alarm(self, alarm_name):</span><br><span class="line">        body = &#123;</span><br><span class="line">            &quot;size&quot;: 0,</span><br><span class="line">            &quot;query&quot;: &#123;</span><br><span class="line">                &quot;bool&quot;: &#123;</span><br><span class="line">                    &quot;must&quot;: [</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;alarm_name&quot;: alarm_name</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_srcip&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;src_address&quot;,</span><br><span class="line">                        &quot;size&quot;: 100</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return body</span><br><span class="line"></span><br><span class="line">    # 根据源地址和目的端口获取目的地址</span><br><span class="line">    def Dsl_dstip_from_srcip_and_dstport(self, dst_port):</span><br><span class="line">        body = &#123;</span><br><span class="line">            &quot;size&quot;: 0,</span><br><span class="line">            &quot;query&quot;: &#123;</span><br><span class="line">                &quot;bool&quot;: &#123;</span><br><span class="line">                    &quot;must&quot;: [</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;dst_port&quot;: dst_port</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;src_address&quot;: &quot;172.16.100.21&quot;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_dstip&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;dst_address&quot;,</span><br><span class="line">                        &quot;size&quot;: 100</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return body</span><br><span class="line"></span><br><span class="line">    # 根据源地址和告警获取目的端口</span><br><span class="line">    def Dsl_dstport_from_alarm_srcip(self, alarm_name):</span><br><span class="line">        body = &#123;</span><br><span class="line">            &quot;size&quot;: 0,</span><br><span class="line">            &quot;query&quot;: &#123;</span><br><span class="line">                &quot;bool&quot;: &#123;</span><br><span class="line">                    &quot;must&quot;: [</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;alarm_name&quot;: alarm_name</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;src_address&quot;: &quot;172.16.100.21&quot;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_dstport&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;dst_port&quot;,</span><br><span class="line">                        &quot;size&quot;: 100</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return body</span><br><span class="line"></span><br><span class="line">    # 根据源地址和告警获取域名</span><br><span class="line">    def Dsl_domain_from_alarm_srcip(self, alarm_name):</span><br><span class="line">        body = &#123;</span><br><span class="line">            &quot;size&quot;: 0,</span><br><span class="line">            &quot;query&quot;: &#123;</span><br><span class="line">                &quot;bool&quot;: &#123;</span><br><span class="line">                    &quot;must&quot;: [</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;alarm_name&quot;: alarm_name</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;src_address&quot;: &quot;172.16.100.21&quot;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_domain&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;domain_name&quot;,</span><br><span class="line">                        &quot;size&quot;: 100</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return body</span><br><span class="line"></span><br><span class="line">    # 根据源地址和告警获取目的地址</span><br><span class="line">    def Dsl_dstip_from_alarm_srcip(self, alarm_name):</span><br><span class="line">        body = &#123;</span><br><span class="line">            &quot;size&quot;: 0,</span><br><span class="line">            &quot;query&quot;: &#123;</span><br><span class="line">                &quot;bool&quot;: &#123;</span><br><span class="line">                    &quot;must&quot;: [</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;alarm_name&quot;: alarm_name</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;,</span><br><span class="line">                        &#123;</span><br><span class="line">                            &quot;term&quot;: &#123;</span><br><span class="line">                                &quot;src_address&quot;: &quot;172.16.100.21&quot;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_dstip&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;dst_address&quot;,</span><br><span class="line">                        &quot;size&quot;: 100</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return body</span><br></pre></td></tr></table></figure>
+<p>&#160; &#160; &#160; &#160;当发生了一个告警时，我们想要通过该告警去溯源整个事件发生的过程及影响范围，图例：我们检测到发生“主机扫描特定端口后发起针对该端口的攻击”，通过自定义Transform来查询发生该告警的源地址，Maltego支持任何脚本，因为Maltego直接调用系统命令执行脚本。<br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-1.png?raw=true" alt="image">  </p>
+<h4 id="Transform代码如下："><a href="#Transform代码如下：" class="headerlink" title="Transform代码如下："></a>Transform代码如下：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python</span><br><span class="line"># -*- coding: utf-8 -*-</span><br><span class="line"># Author: Lawliet</span><br><span class="line"># alarm_to_srcip.py</span><br><span class="line"></span><br><span class="line">from elasticsearch2 import Elasticsearch</span><br><span class="line">from MaltegoTransform import *</span><br><span class="line">from dsl import *</span><br><span class="line">import sys</span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(&apos;utf-8&apos;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def alarm_to_ip():</span><br><span class="line">    dsl_search = dsl()</span><br><span class="line">    es_host_ip = dsl_search.es_ip()</span><br><span class="line">    es = Elasticsearch([&#123;&apos;host&apos;: es_host_ip, &apos;port&apos;: 9200&#125;])</span><br><span class="line">    body = dsl_search.Dsl_srcip_from_alarm(alarm_name=sys.argv[1])</span><br><span class="line">    res = es.search(index=&apos;incident_alarm_20181106&apos;, body=body, request_timeout=60)</span><br><span class="line">    alarm_list = []</span><br><span class="line">    alarm_count = []</span><br><span class="line">    for aggs in res[&apos;aggregations&apos;][&apos;group_by_srcip&apos;][&apos;buckets&apos;]:</span><br><span class="line">        alarm_list.append([aggs[&apos;key&apos;], aggs[&apos;doc_count&apos;]])</span><br><span class="line">    me = MaltegoTransform()</span><br><span class="line">    for i in alarm_list:</span><br><span class="line">        me.addEntity(&quot;maltego.IPv4Address&quot;, i[0])</span><br><span class="line">    me.returnOutput()</span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    alarm_to_ip()</span><br></pre></td></tr></table></figure>
+<p>&#160; &#160; &#160; &#160;添加自定义Transform操作如下，“Entity Value”指的是上层实例的值作为参数传递进脚本进行查询，filed为自定义参数。<br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-2.png?raw=true" alt="image">  </p>
+<h4 id="这里一共新增了6个我们需要用到的溯源逻辑"><a href="#这里一共新增了6个我们需要用到的溯源逻辑" class="headerlink" title="这里一共新增了6个我们需要用到的溯源逻辑"></a>这里一共新增了6个我们需要用到的溯源逻辑</h4><ol>
+<li>根据告警搜索源地址</li>
+<li>根据源地址搜索告警</li>
+<li>根据源地址和告警搜索域名</li>
+<li>根据源地址和告警搜索目的地址</li>
+<li>根据源地址和告警搜索目的端口</li>
+<li>更具源地址和目的端口搜索目的地址<br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-3.png?raw=true" alt="image"><h3 id="效果展示"><a href="#效果展示" class="headerlink" title="效果展示"></a>效果展示</h3>&#160; &#160; &#160; &#160;通过定义好Transform最终溯源出下图，随着定义的Transform越来越多，能覆盖更多的溯源场景。<br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-4.png?raw=true" alt="image"><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3></li>
+</ol>
+<ul>
+<li>首先Maltego平台的绘图能力强，但是Transform只能引用上一层的“Entity Value”来做过滤条件，导致脚本无法自动产生多个过滤条件，所以无法直接使用Maltego来绘画溯源图，本文只是从Maltego借鉴其优点。</li>
+<li>Maltego在查询时有incoming和outgoing的概念，借此概念来绘制线条方向，点击实例时，incoming和outgoing线条加粗，可下钻到其他的实例查看相关信息，整个Detail view栏也是不错的功能，可以看到数据类型和该数据的来源。<br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-5.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-6.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/7/7-7.png?raw=true" alt="image">  </li>
+<li>Maltego通过预定义脚本来查询数据并展示结果，如果通过封装的Transform实现对日志的图形化分析，效果会如何呢？</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/16/记一次钓鱼邮件攻防演练环境准备（2）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1428,7 +1588,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1439,7 +1599,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1450,7 +1610,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
