@@ -259,6 +259,156 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/03/基于bro的安全场景研究测试-RDP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/12/03/基于bro的安全场景研究测试-RDP/" itemprop="url">基于bro的安全场景研究测试-RDP</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-03T21:16:38+08:00">
+                2018-12-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/安全建设/" itemprop="url" rel="index">
+                    <span itemprop="name">安全建设</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&#160; &#160; &#160; &#160;最近突然有些想法，想要通过流量分析平台来查看一些安全行为的记录。想了一下就干脆开启一个专题课程，每一课对一种协议提出问题并操作，查看产生的记录，分析并解答疑惑，让自己的技术和对攻防检测的理解更加扎实和深入。本次我们对RDP协议提出一些问题并验证结</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>通过搭建Bro+ELK的平台，来分析网络中的流量，环境搭建可以参考：<a href="https://logz.io/blog/bro-elk-part-1/" target="_blank" rel="noopener">https://logz.io/blog/bro-elk-part-1/</a></p>
+<h3 id="问题1：RDP端口未开放的连接，网络数据什么样？"><a href="#问题1：RDP端口未开放的连接，网络数据什么样？" class="headerlink" title="问题1：RDP端口未开放的连接，网络数据什么样？"></a>问题1：RDP端口未开放的连接，网络数据什么样？</h3><p>正常的mstsc一般会发送3次请求，应用层发送数据和接受数据均为0，原始发送数据包长度为52bytes，原始接受数据包长度为40bytes。<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-1.png?raw=true" alt="image"><br>偶尔会出现两个连接记录到一条日志的情况<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-2.png?raw=true" alt="image"></p>
+<h3 id="问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样"><a href="#问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样" class="headerlink" title="问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样"></a>问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样</h3><p>rdp端口开启连接成功，但没有进行认证server端会返回2次5-6个包，这时应用层发送数据和接受数据已不为0<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-3.png?raw=true" alt="image">  </p>
+<h3 id="问题3：RDP连接成功，数据包是什么样"><a href="#问题3：RDP连接成功，数据包是什么样" class="headerlink" title="问题3：RDP连接成功，数据包是什么样"></a>问题3：RDP连接成功，数据包是什么样</h3><p>大小看操作时间、画面传输量等<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-4.png?raw=true" alt="image"></p>
+<h3 id="问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中"><a href="#问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中" class="headerlink" title="问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中"></a>问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中</h3><p>以传输一个150M的视频文件为例<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-5.png?raw=true" alt="image"><br>经过确认，rdp远程桌面传输数据包会记录在一条网络连接的流量中<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-6.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-7.png?raw=true" alt="image"></p>
+<h3 id="问题5：遭受暴力破解的情况下会生成什么样的流量"><a href="#问题5：遭受暴力破解的情况下会生成什么样的流量" class="headerlink" title="问题5：遭受暴力破解的情况下会生成什么样的流量"></a>问题5：遭受暴力破解的情况下会生成什么样的流量</h3><p>我是用nrcack进行了10次密码尝试得到的所有网络连接如下：<br>其中有数据传输的记录为10条、第一条为成功登陆的记录，从数据包中可以看出失败记录数据包固定为1604成功的数据包记录为2363，差距较小，上图中其他的数据包判断为破解程序线程太高被服务器丢弃导致<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-8.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-9.png?raw=true" alt="image"><br>再使用hydra尝试10次登陆，同样有10条有数据包通讯的记录但是hydra的数据包大小与nrcack不同，可见数据包大小作为暴力破解的判断不能准确得出结论。而且hydra并没有暴力破解成功（字典存在的情况下，hydra真的没nrcack好用）记录的网络连接如下：<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-10.png?raw=true" alt="image">  </p>
+<h3 id="问题6：从数据包中得到远程登录用户名"><a href="#问题6：从数据包中得到远程登录用户名" class="headerlink" title="问题6：从数据包中得到远程登录用户名"></a>问题6：从数据包中得到远程登录用户名</h3><p>cookie字段代表的是登录的用户名，不过在数据包中存在截断问题<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-11.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-12.png?raw=true" alt="image"><br>cookie字段可以被工具伪造~<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-13.png?raw=true" alt="image">  </p>
+<h3 id="实验结论"><a href="#实验结论" class="headerlink" title="实验结论"></a>实验结论</h3><p>1.可通过返回包的大小和个数判断主机是否开启3389端口，若没有开启那频繁连接多个主机的3389端口则存在扫描嫌疑<br>2.如果一个主机频繁针对3389端口发送较小的数据包可能存在暴力破解的嫌疑，该阈值我觉得5000以下<br>3.如果一个主机对多个主机的3389端口产生较大的连接，那可能在通过rdp协议传播蠕虫病毒文件。（PS由于蠕虫病毒文件大小不一且大部分情况下较小，通过阈值来判断可行性有待研究）<br>4.根据一些特殊的cookie来检测是否存在异常登录行为  </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/10/利用Maltego平台生成攻击溯源图/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1588,7 +1738,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1610,7 +1760,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
