@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="心情," />
+  <meta name="keywords" content="BRO,DNS隧道," />
 
 
 
@@ -79,20 +79,30 @@
 
 
 
-<meta name="description" content="L的故事起初想做个技术类的博客，后来想了一下还是做一个生活记录类的博客比较符合我的想法。我想把我脑子里闪过的一些念头记录，想把我看过的书中难以忘却的情节记录，想把我看过的美景记录，想把无处说的话在这说出来，所以我把站名起为L的故事，我姓的首字母，也就是我的故事，同时L也是我最喜欢的动漫人物之一  :)    人生在世，及时行乐。">
-<meta name="keywords" content="心情">
+<meta name="description" content="前言&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近搭建了隧道的实验环境，想研究一下各种协议隧道通讯的记录情况，在某些环境下企业限制内网机器访问外部资源但放行了DNS流量，黑客会使用DNS隧道来传输数据和执行命令，这次我们先看看DNS隧道使用过程中的数据包情况。 准备工作&amp;#160; &amp;#160; &amp;#160; &amp;#160;前两天我使用iodine先建立了DNS隧道通讯的环境，环境搭建的">
+<meta name="keywords" content="BRO,DNS隧道">
 <meta property="og:type" content="article">
-<meta property="og:title" content="L&#39;s tale start">
-<meta property="og:url" content="http://yoursite.com/2018/04/18/L-s-tale-start/index.html">
+<meta property="og:title" content="基于bro的安全场景研究测试-DNS隧道">
+<meta property="og:url" content="http://yoursite.com/2018/12/16/基于bro的安全场景研究测试-DNS隧道/index.html">
 <meta property="og:site_name" content="L&#39;s tale">
-<meta property="og:description" content="L的故事起初想做个技术类的博客，后来想了一下还是做一个生活记录类的博客比较符合我的想法。我想把我脑子里闪过的一些念头记录，想把我看过的书中难以忘却的情节记录，想把我看过的美景记录，想把无处说的话在这说出来，所以我把站名起为L的故事，我姓的首字母，也就是我的故事，同时L也是我最喜欢的动漫人物之一  :)    人生在世，及时行乐。">
+<meta property="og:description" content="前言&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近搭建了隧道的实验环境，想研究一下各种协议隧道通讯的记录情况，在某些环境下企业限制内网机器访问外部资源但放行了DNS流量，黑客会使用DNS隧道来传输数据和执行命令，这次我们先看看DNS隧道使用过程中的数据包情况。 准备工作&amp;#160; &amp;#160; &amp;#160; &amp;#160;前两天我使用iodine先建立了DNS隧道通讯的环境，环境搭建的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524070347031&di=c9f2ceae02f442d99a7822ec8773930e&imgtype=0&src=http%3A%2F%2F5.26923.com%2Fdownload%2Fpic%2F000%2F340%2F5a4702ed69923f59e17520a86576e5fc.jpg">
-<meta property="og:updated_time" content="2018-04-18T14:16:38.952Z">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-1.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-2.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-3.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-4.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-5.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-6.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-7.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-8.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-9.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-10.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-11.png?raw=true">
+<meta property="og:updated_time" content="2018-12-16T09:31:08.082Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="L&#39;s tale start">
-<meta name="twitter:description" content="L的故事起初想做个技术类的博客，后来想了一下还是做一个生活记录类的博客比较符合我的想法。我想把我脑子里闪过的一些念头记录，想把我看过的书中难以忘却的情节记录，想把我看过的美景记录，想把无处说的话在这说出来，所以我把站名起为L的故事，我姓的首字母，也就是我的故事，同时L也是我最喜欢的动漫人物之一  :)    人生在世，及时行乐。">
-<meta name="twitter:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524070347031&di=c9f2ceae02f442d99a7822ec8773930e&imgtype=0&src=http%3A%2F%2F5.26923.com%2Fdownload%2Fpic%2F000%2F340%2F5a4702ed69923f59e17520a86576e5fc.jpg">
+<meta name="twitter:title" content="基于bro的安全场景研究测试-DNS隧道">
+<meta name="twitter:description" content="前言&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近搭建了隧道的实验环境，想研究一下各种协议隧道通讯的记录情况，在某些环境下企业限制内网机器访问外部资源但放行了DNS流量，黑客会使用DNS隧道来传输数据和执行命令，这次我们先看看DNS隧道使用过程中的数据包情况。 准备工作&amp;#160; &amp;#160; &amp;#160; &amp;#160;前两天我使用iodine先建立了DNS隧道通讯的环境，环境搭建的">
+<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/10/10-1.png?raw=true">
 
 
 
@@ -122,13 +132,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/04/18/L-s-tale-start/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/12/16/基于bro的安全场景研究测试-DNS隧道/"/>
 
 
 
 
 
-  <title>L's tale start | L's tale</title>
+  <title>基于bro的安全场景研究测试-DNS隧道 | L's tale</title>
   
 
 
@@ -265,7 +275,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/18/L-s-tale-start/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/16/基于bro的安全场景研究测试-DNS隧道/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="L.Lawliet">
@@ -282,7 +292,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">L's tale start</h1>
+          <h1 class="post-title" itemprop="name headline">基于bro的安全场景研究测试-DNS隧道</h1>
         
 
         <div class="post-meta">
@@ -294,8 +304,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-18T22:14:00+08:00">
-                2018-04-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-16T16:28:40+08:00">
+                2018-12-16
               </time>
             
 
@@ -317,8 +327,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/心情/" itemprop="url" rel="index">
-                    <span itemprop="name">心情</span>
+                  <a href="/categories/安全建设/" itemprop="url" rel="index">
+                    <span itemprop="name">安全建设</span>
                   </a>
                 </span>
 
@@ -354,10 +364,30 @@
       
 
       
-        <h3 id="L的故事"><a href="#L的故事" class="headerlink" title="L的故事"></a>L的故事</h3><p>起初想做个技术类的博客，后来想了一下还是做一个生活记录类的博客比较符合我的想法。我想把我脑子里闪过的一些念头记录，想把我看过的书中难以忘却的情节记录，想把我看过的美景记录，想把无处说的话在这说出来，所以我把站名起为L的故事，我姓的首字母，也就是我的故事，同时L也是我最喜欢的动漫人物之一  :)  </p>
-<hr>
-<p>人生在世，及时行乐。</p>
-<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1524070347031&amp;di=c9f2ceae02f442d99a7822ec8773930e&amp;imgtype=0&amp;src=http%3A%2F%2F5.26923.com%2Fdownload%2Fpic%2F000%2F340%2F5a4702ed69923f59e17520a86576e5fc.jpg" alt="image"></p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&#160; &#160; &#160; &#160;最近搭建了隧道的实验环境，想研究一下各种协议隧道通讯的记录情况，在某些环境下企业限制内网机器访问外部资源但放行了DNS流量，黑客会使用DNS隧道来传输数据和执行命令，这次我们先看看DNS隧道使用过程中的数据包情况。</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>&#160; &#160; &#160; &#160;前两天我使用iodine先建立了DNS隧道通讯的环境，环境搭建的方法可以参考：<a href="https://rosetscmite.github.io/2018/12/13/%E5%9F%BA%E4%BA%8Eiodine%E5%BB%BA%E7%AB%8BDNS%E9%9A%A7%E9%81%93/" target="_blank" rel="noopener">https://rosetscmite.github.io/2018/12/13/%E5%9F%BA%E4%BA%8Eiodine%E5%BB%BA%E7%AB%8BDNS%E9%9A%A7%E9%81%93/</a></p>
+<h3 id="问题1：DNS隧道建立后有哪些特征"><a href="#问题1：DNS隧道建立后有哪些特征" class="headerlink" title="问题1：DNS隧道建立后有哪些特征"></a>问题1：DNS隧道建立后有哪些特征</h3><p>DNS隧道建立后依靠不断发送query信息来判断隧道存活性<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-1.png?raw=true" alt="image">  </p>
+<h3 id="问题2：DNS隧道传输时有哪些特征"><a href="#问题2：DNS隧道传输时有哪些特征" class="headerlink" title="问题2：DNS隧道传输时有哪些特征"></a>问题2：DNS隧道传输时有哪些特征</h3><p>通过DNS隧道传输时，客户端将数据编码后作为主机名向DNS服务器提交，DNS服务端解码后读取数据<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-2.png?raw=true" alt="image"><br>主机名的长度可以通过iodine的参数来调节默认的长度为255，可以通过调短主机名长度来提高隐蔽性，下图与上图为同一个操作，把iodine的主机名长度设置为100后，FQDN的长度明显缩短，但请求次数会增加，因为传输的数据量不变<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-3.png?raw=true" alt="image"><br>iodine可以不发送标准的DNS报文，直接发送特定畸形的DNS报文来传输数据，这种传输方式规避了特定的记录和主机名，由于数据包非标准格式，流量检测设备也无法解析，对溯源造成困扰<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-4.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-5.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-6.png?raw=true" alt="image">  </p>
+<h3 id="问题3：DNS隧道client端是如何接受命令的"><a href="#问题3：DNS隧道client端是如何接受命令的" class="headerlink" title="问题3：DNS隧道client端是如何接受命令的"></a>问题3：DNS隧道client端是如何接受命令的</h3><p>在隧道服务端向客户端发送命令，通过查看DNS记录可以发现服务端通过回复心跳记录将命令编码后放在Answers字段发送给客户端，客户端解码后读取命令并执行，将回显信息通过Query请求出去，服务端解码后读取回显信息<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-7.png?raw=true" alt="image">  </p>
+<h3 id="问题4：DNS隧道传输文件时是否会记录再一条flow日志中"><a href="#问题4：DNS隧道传输文件时是否会记录再一条flow日志中" class="headerlink" title="问题4：DNS隧道传输文件时是否会记录再一条flow日志中"></a>问题4：DNS隧道传输文件时是否会记录再一条flow日志中</h3><p>通过标准DNS数据包记录传输数据时，数据通过主机名和Answers进行传递，每一组DNS请求与回应记录到一条flow<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-8.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-9.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-10.png?raw=true" alt="image"><br>通过畸形DNS数据包传输数据时，由于数据包畸形没有解析到DNS记录，传输数据时记录到一条flow日志中<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-11.png?raw=true" alt="image">  </p>
+<h3 id="实验结论："><a href="#实验结论：" class="headerlink" title="实验结论："></a>实验结论：</h3><p>从实验结果看出，DNS隧道主要分为两种模式一是将数据编码通过主机名进行传递，一是通过畸形DNS数据包进行传递，检测方法如下：</p>
+<p><strong>将数据编码通过主机名进行传递的方式：</strong></p>
+<ol>
+<li>检测每个域的主机名数：因为绕过DNS记录缓存，DNS隧道发送的记录都是不同的（包括心跳包），所以可以检测窗口时间内同一个域下的主机名数量来判断异常  </li>
+<li>检测DNS域名长度：通过DNS隧道传输数据时，FQDN长度一般会较长与正常域名  </li>
+<li>检测DNS不常见记录类型：统计窗口时间内同一个域下不常见的记录类型数量  </li>
+</ol>
+<p><strong>通过畸形DNS数据包进行传递的方式：</strong></p>
+<ol>
+<li>单个DNS flow的数据包较大  </li>
+<li>单个IP时间窗口内检测到较多畸形DNS数据包  </li>
+</ol>
+<p><strong>通用检测方式：</strong></p>
+<ol>
+<li>每个IP地址的DNS流量异常  </li>
+<li>DNS服务器的地理位置异常  </li>
+<li>访问非受信的DNS服务器  </li>
+</ol>
 
       
     </div>
@@ -375,7 +405,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/心情/" rel="tag"><i class="fa fa-tag"></i> 心情</a>
+            <a href="/tags/BRO/" rel="tag"><i class="fa fa-tag"></i> BRO</a>
+          
+            <a href="/tags/DNS隧道/" rel="tag"><i class="fa fa-tag"></i> DNS隧道</a>
           
         </div>
       
@@ -388,15 +420,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2018/12/13/基于iodine建立DNS隧道/" rel="next" title="基于iodine建立DNS隧道">
+                <i class="fa fa-chevron-left"></i> 基于iodine建立DNS隧道
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/04/18/三体读后感/" rel="prev" title="三体读后感">
-                三体读后感 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -532,7 +564,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#L的故事"><span class="nav-number">1.</span> <span class="nav-text">L的故事</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">2.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1：DNS隧道建立后有哪些特征"><span class="nav-number">3.</span> <span class="nav-text">问题1：DNS隧道建立后有哪些特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2：DNS隧道传输时有哪些特征"><span class="nav-number">4.</span> <span class="nav-text">问题2：DNS隧道传输时有哪些特征</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3：DNS隧道client端是如何接受命令的"><span class="nav-number">5.</span> <span class="nav-text">问题3：DNS隧道client端是如何接受命令的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题4：DNS隧道传输文件时是否会记录再一条flow日志中"><span class="nav-number">6.</span> <span class="nav-text">问题4：DNS隧道传输文件时是否会记录再一条flow日志中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验结论："><span class="nav-number">7.</span> <span class="nav-text">实验结论：</span></a></li></ol></div>
             
 
           </div>
