@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="前言本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测 准备工作环境搭建参考：https://rosetscmite.github.io/2018/12/18/%E5%9F%BA%E4%BA%8EPtunnel%E5%BB%BA%E7%AB%8BICMP%E9%9A%A7%E9%81%93/   工作原理通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报">
+<meta name="description" content="前言本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测 准备工作环境搭建参考：基于Ptunnel建立ICMP隧道   工作原理通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报文，两端把通讯数据包封装到ICMP报文的DATA字段中进行传输。默认的windows ping包，DATA内容固定包含：abcdefghijklmnopqrstuvwabcdefg">
 <meta name="keywords" content="ICMP隧道,BRO">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于bro的安全场景研究测试-ICMP隧道">
 <meta property="og:url" content="http://yoursite.com/2018/12/19/基于bro的安全场景研究测试-ICMP隧道/index.html">
 <meta property="og:site_name" content="L&#39;s tale">
-<meta property="og:description" content="前言本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测 准备工作环境搭建参考：https://rosetscmite.github.io/2018/12/18/%E5%9F%BA%E4%BA%8EPtunnel%E5%BB%BA%E7%AB%8BICMP%E9%9A%A7%E9%81%93/   工作原理通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报">
+<meta property="og:description" content="前言本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测 准备工作环境搭建参考：基于Ptunnel建立ICMP隧道   工作原理通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报文，两端把通讯数据包封装到ICMP报文的DATA字段中进行传输。默认的windows ping包，DATA内容固定包含：abcdefghijklmnopqrstuvwabcdefg">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/12/12-1.png?raw=true">
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/12/12-2.png?raw=true">
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/12/12-3.png?raw=true">
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/12/12-4.png?raw=true">
-<meta property="og:updated_time" content="2018-12-19T13:51:22.241Z">
+<meta property="og:updated_time" content="2018-12-19T13:53:47.317Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于bro的安全场景研究测试-ICMP隧道">
-<meta name="twitter:description" content="前言本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测 准备工作环境搭建参考：https://rosetscmite.github.io/2018/12/18/%E5%9F%BA%E4%BA%8EPtunnel%E5%BB%BA%E7%AB%8BICMP%E9%9A%A7%E9%81%93/   工作原理通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报">
+<meta name="twitter:description" content="前言本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测 准备工作环境搭建参考：基于Ptunnel建立ICMP隧道   工作原理通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报文，两端把通讯数据包封装到ICMP报文的DATA字段中进行传输。默认的windows ping包，DATA内容固定包含：abcdefghijklmnopqrstuvwabcdefg">
 <meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/12/12-1.png?raw=true">
 
 
@@ -358,7 +358,7 @@
 
       
         <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本次我们来研究以下ICMP隧道建立后可以从哪些特征中进行检测</p>
-<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>环境搭建参考：<a href="https://rosetscmite.github.io/2018/12/18/%E5%9F%BA%E4%BA%8EPtunnel%E5%BB%BA%E7%AB%8BICMP%E9%9A%A7%E9%81%93/" target="_blank" rel="noopener">https://rosetscmite.github.io/2018/12/18/%E5%9F%BA%E4%BA%8EPtunnel%E5%BB%BA%E7%AB%8BICMP%E9%9A%A7%E9%81%93/</a>  </p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>环境搭建参考<a href="https://rosetscmite.github.io/2018/12/18/%E5%9F%BA%E4%BA%8EPtunnel%E5%BB%BA%E7%AB%8BICMP%E9%9A%A7%E9%81%93/" target="_blank" rel="noopener">：基于Ptunnel建立ICMP隧道  </a></p>
 <h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>通过关闭ICMP隧道服务端的ICMP响应功能，让ICMP隧道agent接管ICMP报文，两端把通讯数据包封装到ICMP报文的DATA字段中进行传输。<br>默认的windows ping包，DATA内容固定包含：abcdefghijklmnopqrstuvwabcdefghi，payload长度默认32字节<br><img src="https://github.com/rosetscmite/tu/blob/master/12/12-1.png?raw=true" alt="image"><br>默认的linux ping包，DATA内容固定包含： !”#$%&amp;’()*+,-./01234567，payload长度默认48字节<br><img src="https://github.com/rosetscmite/tu/blob/master/12/12-2.png?raw=true" alt="image"><br>通过ICMP隧道传输SSH数据时如下图<br><img src="https://github.com/rosetscmite/tu/blob/master/12/12-3.png?raw=true" alt="image">  </p>
 <h3 id="问题1：一次隧道通讯是否会记录在一条flow中"><a href="#问题1：一次隧道通讯是否会记录在一条flow中" class="headerlink" title="问题1：一次隧道通讯是否会记录在一条flow中"></a>问题1：一次隧道通讯是否会记录在一条flow中</h3><p>建立一个超长隧道连接后发现，一次隧道通讯记录再一条flow中<br><img src="https://github.com/rosetscmite/tu/blob/master/12/12-4.png?raw=true" alt="image">  </p>
 <h3 id="检测方法"><a href="#检测方法" class="headerlink" title="检测方法"></a>检测方法</h3><ol>
