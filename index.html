@@ -385,12 +385,12 @@
 <p>目前SIEM并没有涉及到太多的移动端安全问题，所以移动端就不放在本次的讨论范围之内。</p>
 <p>PRE-ATT&amp;CK目前对于防御者来说可见性比较低，目前大多数采用预防性防御方法，比如进行安全意识培训抵御社会工程学攻击，定期漏洞扫描来规避易被发现的脆弱点，定期的监控开源代码仓库有无泄露项目源代码、VPN账号、员工邮箱、敏感密码等</p>
 <p>Enterprise既是当用户已经在内部有了驻足点后的行为矩阵，在这个矩阵中，企业数据探针较完善的情况下可见度是比较高的，可以更好的利用此矩阵内的数据源进行威胁的捕获与分析，因此Enterprise也是目前备受关注的矩阵，也是我们本篇重点讨论的矩阵。</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/image-20191105150106067.png?raw=true" alt="image-20191105150106067"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191105150106067.png?raw=true" alt="image-20191105150106067"></p>
 <p>（图片来源于：网络）</p>
 <h4 id="二、SIEM产品与ATT-amp-CK框架的结合应用"><a href="#二、SIEM产品与ATT-amp-CK框架的结合应用" class="headerlink" title="二、SIEM产品与ATT&amp;CK框架的结合应用"></a><strong>二、SIEM产品与ATT&amp;CK框架的结合应用</strong></h4><h5 id="TTP的标签"><a href="#TTP的标签" class="headerlink" title="TTP的标签"></a>TTP的标签</h5><ol>
 <li><p>数据源的选择</p>
 <p>在利用ATT&amp;CK的TTP来描述在环境中发现的威胁之前，需要接入相关数据作为底层的支持。在这次ATT&amp;CKcon会议上看到的一张数据源排行榜，可见进程创建、进程命令、文件监控占了很大的比重。sysmon的数据目前可以基本满足需求</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/datasource.jpg?raw=true" alt=""></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/datasource.jpg?raw=true" alt=""></p>
 <p>（图片来源于：hxxps://pbs.twimg.com/media/EICsnZ_XYAAyyxd?format=jpg&amp;name=medium）</p>
 </li>
 </ol>
@@ -398,11 +398,11 @@
 <li><p>数据标签化</p>
 <p>由于SIEM平台本身接入的数据量太大并且有很多没有分析价值的数据，平台需要抽象出一层关注的安全事件，这些事件不一定是恶意攻击，比如Powershell、CMD这些运维管理员也会使用的程序，抽象出的事件需要一个标签来描述事件的含义，这时TTP的ID就成了最好的标签。TTP的背后是完善的知识库，每个技术都可以追溯其利用原理、战术意图。</p>
 <p>通常使用规则将数据打上标签，所以需要先梳理技术对应的数据源，以下表为例</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/image-20191105203041360.png?raw=true" alt="image-20191105203041360"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191105203041360.png?raw=true" alt="image-20191105203041360"></p>
 </li>
 </ol>
 <p>   SIEM做的是数据分析，ATT&amp;CK可以将数据添加一层标签，标签的生成来自与规则，标签化的流程与利用，如下图：</p>
-<p>   <img src="https://github.com/rosetscmite/tu/blob/master/image-20191106104303010.png?raw=true" alt="image-20191106104303010"></p>
+<p>   <img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191106104303010.png?raw=true" alt="image-20191106104303010"></p>
 <p>   ATT&amp;CK的规则是ATT&amp;CK框架应用的基础，也是难点。初步可以根据github上一些开源的项目进行实施和优化，例如：<strong><a href="https://github.com/BlueTeamLabs/sentinel-attack" target="_blank" rel="noopener">sentinel-attack</a></strong>、<strong><a href="https://github.com/ion-storm/sysmon-config" target="_blank" rel="noopener">sysmon-config</a></strong>、<strong><a href="https://github.com/Neo23x0/sigma" target="_blank" rel="noopener">sigma</a></strong>等。与其他产品类似，主要的问题在两个方面：</p>
 <ul>
 <li><p><strong>规则的质量</strong></p>
@@ -410,14 +410,14 @@
 </li>
 <li><p><strong>规则的覆盖率</strong></p>
 <p>虽然ATT&amp;CK框架号称是原子级技术分解，其实并没有达到这个程度，例如 <code>T1055 -进程注入</code>，虽然在它的知识库里也列出了几种注入的方法，但是真正的注入方法就不止10种。那当一个产品说我覆盖了 <code>T1055 -进程注入</code>，覆盖了其中一种技术还是十种技术对应的能力显然是不同的。为此MITRE也及时做出了调整推出Sub-Techniques的概念，这是真正意义上的原子级技术点。相对于现在的Techniques，Sub-Techniques才能客观的标识一个产品的检测能力覆盖面，让我们拭目以待。</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/ECl3z_FXsAE892F.jpg?raw=true" alt="ECl3z_FXsAE892F"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/ECl3z_FXsAE892F.jpg?raw=true" alt="ECl3z_FXsAE892F"></p>
 <p>(图片来源：hxxps://pbs.twimg.com/media/ECl3z_FXsAE892F?format=jpg&amp;name=900x900)</p>
 </li>
 </ul>
 <ol start="3">
 <li><p>标签的权重</p>
 <p>分析标签时和分析数据一般无二，有的数据只是用参考的，有的数据却标注着企业内部可能正在发生攻击行为。 我据规则的置信度、检测粒度将标签粗略分为：失陷告警、参考告警、审计信息三大类。</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/image-20191106202335964.png?raw=true" alt="image-20191106202335964"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191106202335964.png?raw=true" alt="image-20191106202335964"></p>
 <ul>
 <li><p>失陷告警：极低误报率、确切高危行为的告警</p>
 </li>
@@ -461,12 +461,12 @@
 <p>b. 是否主机上有超过${Num}个不同的标记</p>
 <p>c. 是否主机上有超过${Num}个不同的战术意图</p>
 </blockquote>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/image-20191106193234466.png?raw=true" alt="image-20191106193234466"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191106193234466.png?raw=true" alt="image-20191106193234466"></p>
 <p>当然光靠阈值可能依然存在一些误报情况，我们可以引入机器学习算法辅助确认主机是否失陷。在内网的运维过程中，我们收集以单台主机上的TTP标签分布为样本数据，对主机进行分析后，若手动判定为失陷则加入黑样本，其他认为是白样本。利用样本集训练模型作为一种辅助判断的手法，来提高风险主机的处理优先级。在客户运维的过程中，还可以利用主动学习算法不断的优化辅助模型。</p>
 </li>
 <li><p>内网的溯源</p>
 <p>当检测到失陷主机有进程访问内网其他机器时，展示该机器上检测到的TTP信息及摘要。可以根据此信息来判断是否为横向移动攻击，例如winrs是一种横向移动手段，发现主机10.50.10.100通过winrs连接到内网机器10.50.10.105，又发现主机10.50.10.105上有权重较高的标签<code>T1060-Registry Run Keys / Startup Folder</code>、<code>T1003-Credential Dumping</code>、<code>T1191-CMSTP</code>,那可能大概率横向移动的结果是成功的。</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/image-20191107141144507.png?raw=true" alt="image-20191107141144507"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191107141144507.png?raw=true" alt="image-20191107141144507"></p>
 </li>
 <li><p>上下文描述</p>
 <p>可为每个标签添加更细节和通俗的描述作为场景化描述的基础语句，再将其组合起来成为完整的描述一个场景。以进程树为例，对每一层树中的操作进行战术分类后以时间轴的形式进行描述。</p>
@@ -483,7 +483,7 @@
 </li>
 </ol>
 <h5 id="红蓝知识库"><a href="#红蓝知识库" class="headerlink" title="红蓝知识库"></a>红蓝知识库</h5><p>虽说ATT&amp;CK框架期望实现一个大而全的威胁知识库，但目前的阶段仅仅处在告诉你有这个东西。虽然MITRE建立一个<strong><a href="https://car.mitre.org/" target="_blank" rel="noopener">Cyber Analytics Repository</a></strong>，但由于内容太少不足以提供丰富的检测能力。不过也有很多迫不及待的人已经提前动起了手，例如<strong><a href="https://ired.team/" target="_blank" rel="noopener">Red Teaming Experiments</a></strong>、<strong><a href="https://github.com/redcanaryco/atomic-red-team" target="_blank" rel="noopener">atomic-red-team</a></strong>，但他们更注重的是Red Team攻击过程的复现，我们期望的是Red Team代码级复现+Blue Team威胁特征提取。</p>
-<p><img src="https://github.com/rosetscmite/tu/blob/master/image-20191107105217738.png?raw=true" alt="image-20191107105217738"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/14/image-20191107105217738.png?raw=true" alt="image-20191107105217738"></p>
 <ol>
 <li><p>威胁检测</p>
 <p>比起说红蓝知识库可以帮助威胁检测，倒不如说为了更好的检测才有了红蓝知识库。为了有更精确的告警采取复现攻击技术，红蓝知识库只是衍生总结出的产物。</p>
