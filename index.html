@@ -364,12 +364,12 @@
 <p>怀疑过new-object新建对象问题，怀疑过是否只能监控cmdlet和Function函数块的问题。但是经过大量测试，最后发现居然是：<strong>当有传参传入时，Windows只能记录Function块里的内容，当没有参数时，则可以记录脚本所有内容！！！</strong></p>
 <p>找了半天也没人说这个问题，不知道Windows内部是如何实现的</p>
 <p><strong>截图：</strong></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212847879.png" alt="image-20200402212847879"></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212932189.png" alt="image-20200402212932189"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212847879.png?raw=true" alt="image-20200402212847879"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212932189.png?raw=true" alt="image-20200402212932189"></p>
 <p><strong>无参数传入时，均可以记录</strong></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212552869.png" alt="image-20200402212552869"></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212608384.png" alt="image-20200402212608384"></p>
-<p>结论：</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212552869.png?raw=true" alt="image-20200402212552869"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212608384.png?raw=true" alt="image-20200402212608384"></p>
+<p><strong>结论：</strong></p>
 <p>在某种程度上，对脚本传入参数并且不适用函数则可以一定程度的逃避Windows 4104事件的审计。虽然这并不能逃避4103事件，但是4103事件是针对于单个cmdlet做审计，在分析过程中想要对此类事件进行分析挖掘，难度是较大的，没有4104脚本块内容来的直观。</p>
 
           

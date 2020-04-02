@@ -87,15 +87,15 @@
 <meta property="og:site_name" content="L&#39;s tale">
 <meta property="og:description" content="Powershell V5脚本块审计能力探究前言： 这几天在测试SPN扫描的时候准备提取特征，寻思目前使用的两种比较常见的手法  Windows自带程序setspn 脚本连接LDAP查询用户属性  心想如果一个SPN的Powershell脚本大概率会在脚本中过滤出serviceprincipalname字段，看了几个SPN的脚本也确实如此，这时准备从4104事件的scriptContent中做匹配">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2020/04/02/Powershell-v5脚本块审计能力探究/脚本块审计能力探究.assets/image-20200402212847879.png">
-<meta property="og:image" content="http://yoursite.com/2020/04/02/Powershell-v5脚本块审计能力探究/脚本块审计能力探究.assets/image-20200402212932189.png">
-<meta property="og:image" content="http://yoursite.com/2020/04/02/Powershell-v5脚本块审计能力探究/脚本块审计能力探究.assets/image-20200402212552869.png">
-<meta property="og:image" content="http://yoursite.com/2020/04/02/Powershell-v5脚本块审计能力探究/脚本块审计能力探究.assets/image-20200402212608384.png">
-<meta property="og:updated_time" content="2020-04-02T14:33:57.686Z">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212847879.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212932189.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212552869.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212608384.png?raw=true">
+<meta property="og:updated_time" content="2020-04-02T14:43:57.767Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Powershell v5脚本块审计能力探究">
 <meta name="twitter:description" content="Powershell V5脚本块审计能力探究前言： 这几天在测试SPN扫描的时候准备提取特征，寻思目前使用的两种比较常见的手法  Windows自带程序setspn 脚本连接LDAP查询用户属性  心想如果一个SPN的Powershell脚本大概率会在脚本中过滤出serviceprincipalname字段，看了几个SPN的脚本也确实如此，这时准备从4104事件的scriptContent中做匹配">
-<meta name="twitter:image" content="http://yoursite.com/2020/04/02/Powershell-v5脚本块审计能力探究/脚本块审计能力探究.assets/image-20200402212847879.png">
+<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212847879.png?raw=true">
 
 
 
@@ -369,12 +369,12 @@
 <p>怀疑过new-object新建对象问题，怀疑过是否只能监控cmdlet和Function函数块的问题。但是经过大量测试，最后发现居然是：<strong>当有传参传入时，Windows只能记录Function块里的内容，当没有参数时，则可以记录脚本所有内容！！！</strong></p>
 <p>找了半天也没人说这个问题，不知道Windows内部是如何实现的</p>
 <p><strong>截图：</strong></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212847879.png" alt="image-20200402212847879"></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212932189.png" alt="image-20200402212932189"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212847879.png?raw=true" alt="image-20200402212847879"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212932189.png?raw=true" alt="image-20200402212932189"></p>
 <p><strong>无参数传入时，均可以记录</strong></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212552869.png" alt="image-20200402212552869"></p>
-<p><img src="脚本块审计能力探究.assets/image-20200402212608384.png" alt="image-20200402212608384"></p>
-<p>结论：</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212552869.png?raw=true" alt="image-20200402212552869"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/15/image-20200402212608384.png?raw=true" alt="image-20200402212608384"></p>
+<p><strong>结论：</strong></p>
 <p>在某种程度上，对脚本传入参数并且不适用函数则可以一定程度的逃避Windows 4104事件的审计。虽然这并不能逃避4103事件，但是4103事件是针对于单个cmdlet做审计，在分析过程中想要对此类事件进行分析挖掘，难度是较大的，没有4104脚本块内容来的直观。</p>
 
       
