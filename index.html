@@ -259,6 +259,173 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/04/Covenant-C2框架调研及扩展/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/04/04/Covenant-C2框架调研及扩展/" itemprop="url">Covenant C2框架调研及扩展</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-04T13:02:51+08:00">
+                2020-04-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/渗透测试/" itemprop="url" rel="index">
+                    <span itemprop="name">渗透测试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Covenant-C2框架调研及扩展"><a href="#Covenant-C2框架调研及扩展" class="headerlink" title="Covenant C2框架调研及扩展"></a>Covenant C2框架调研及扩展</h1><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这半年来BLOG都没有更新，这段事件主要的工作是忙于ATT&amp;CK框架的应用落地，其中做的一块工作就是攻击模拟、规则提取、知识库总结。以前的攻击模拟都是自己写的散装脚本或程序，在真正到了项目需要落地或POC测试时，还是需要进行复现效果展示的，所以最近开始调研一些开源的攻击框架把攻击本都集成进去，帮助项目进行效果展示。</p>
+<p>后来关注到Covenant这个C2框架，它使用DotNet编写所以天然对Windows的操作支持良好，利用DotNet已有的API可以快速编写Windows下的利用程序，故对Covenant做了一些调研和Demo。</p>
+<h3 id="Covenant介绍"><a href="#Covenant介绍" class="headerlink" title="Covenant介绍"></a>Covenant介绍</h3><p>Covenant分为4个核心的模块：Listeners、Launchers、Grunts、Tasks，模块都具备高自由度、扩展性。</p>
+<p><strong>Listeners：</strong></p>
+<p>和其他的框架类似Listeners的功能为设置C2框架的监听设置。Listeners可以在前端对于HTTP通信隧道的属性（Urls\Head\Useragent\PostRequest\Response）进行修改，操作非常简单，也可以利用<a href="https://cobbr.io/Covenant-Developing-Custom-C2-Protocols.html" target="_blank" rel="noopener">Bridge</a>开发自己自定义通信隧道。</p>
+<p><strong>Launchers：</strong></p>
+<p>该模块的功能为加载Stage的模块，相当于ShellCode Load的程序。Covenant在该模块提供了几个常见的白名单程序加载方案，虽然可能现在也不再“白”了：Binary、Powershell、MSBuild、InstallUtil、Wmic、Regsvr32、Mshta、Cscript、Wscript。</p>
+<p>在前端未发现扩展Lunchers的按钮，如果要扩展加载模块可能需要在源码更改编译。</p>
+<p><strong>Grunts：</strong></p>
+<p>该模块的功能为管理上线的终端主机，可远程查看信息、执行命令等</p>
+<p><strong>Tasks：</strong></p>
+<p>该模块为后渗透模块，目前集合多种开源模块：Rebeus、Seatbelt、SharpDPAPI、SharpDump、SharpSploit、SharpUp、SharpWMI。</p>
+<h3 id="Covenant-Task扩展"><a href="#Covenant-Task扩展" class="headerlink" title="Covenant Task扩展"></a>Covenant Task扩展</h3><p>Covenant后渗透模块扩展，需要通过添加Reference Source Libraries被调用。调研初衷是想在ATT&amp;CK落地项目中进行效果测试，那这样咱们的目标明确就是要做一个ATT&amp;CK的模拟攻击DLL。</p>
+<p>以Discovery战术下的IP地址获取为例，C#的DLL代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">using System.Net;</span><br><span class="line">using System.Net.Sockets;</span><br><span class="line"></span><br><span class="line">namespace AttAck.Discovery</span><br><span class="line">&#123;</span><br><span class="line">    public class Discovery</span><br><span class="line">    &#123;</span><br><span class="line">        public static string GetHostAddress(string[] args)</span><br><span class="line">        &#123;</span><br><span class="line">            string Output = &quot;&quot;;</span><br><span class="line">            var host = Dns.GetHostEntry(Dns.GetHostName());</span><br><span class="line">            foreach (var ip in host.AddressList)</span><br><span class="line">            &#123;</span><br><span class="line">                // 下面的判断过滤 IP v4 地址</span><br><span class="line">                if (ip.AddressFamily == AddressFamily.InterNetwork)</span><br><span class="line">                &#123;</span><br><span class="line">                    Output = Output + ip.ToString() + &quot;\r\n&quot;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            return Output;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将C#的项目源代码目录放置到Covenant/Data/ReferenceSourceLibraries目录下</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/16/image-20200404122225637.png?raw=true" alt="image-20200404122225637"></p>
+<p>在Covenant-&gt;Tasks模块下创建新的ReferenceSourceLibrary引用并选择支持的DotNet版本和引用的程序集</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/16/image-20200404122437800.png?raw=true" alt="image-20200404122437800"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/16/image-20200404122741581.png?raw=true" alt="image-20200404122741581"></p>
+<p>Covenant默认存在的程序集可在Reference Assemblies标签页查看，内置大部分常用的程序集，如果你需要新增的ReferenceSourceLibrary引用的程序集不在范围内需要自己将程序集复制到AssemblyReferences目录下。</p>
+<p>在成功导入AttAck库后，新增Task任务调用DLL程序集中的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line">using AttAck.Discovery;</span><br><span class="line"></span><br><span class="line">public static class Task</span><br><span class="line">&#123;</span><br><span class="line">    public static string Execute()</span><br><span class="line">    &#123;</span><br><span class="line">        try</span><br><span class="line">        &#123;</span><br><span class="line">            return Discovery.GetHostAddress();</span><br><span class="line">        &#125;</span><br><span class="line">        catch (Exception e) &#123; return e.GetType().FullName + &quot;: &quot; + e.Message + Environment.NewLine + e.StackTrace; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加Task后可以通过Grunts向上线主机发送task任务或者通过Interact命令行执行命令</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/16/image-20200404124523213.png?raw=true" alt="image-20200404124523213"></p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>Covenant在扩展性方面是友好的，开发成本低，速度快，界面简洁，操作门槛低，对于开发好的模块可以快速的实施测试。但是是基于DotNet开发的特性导致不适用于一些不满足DotNet环境的目标机器，这导致了在通用性有所欠缺，如果后续需要加入针对Linux平台的测试脚本，可能需要另外基于Python或perl开发新的Listeners模块和Grunts模块。在这方面可能Covenant就不如Empire，但是我依然非常喜欢C#。后面我会继续看一看Covenant的源码，了解其详细的运行原理，并记录。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/02/Powershell-v5脚本块审计能力探究/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1775,156 +1942,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/03/基于bro的安全场景研究测试-RDP/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="L.Lawliet">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/L.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="L's tale">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/12/03/基于bro的安全场景研究测试-RDP/" itemprop="url">基于bro的安全场景研究测试-RDP</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-03T21:16:38+08:00">
-                2018-12-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/安全建设/" itemprop="url" rel="index">
-                    <span itemprop="name">安全建设</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&#160; &#160; &#160; &#160;最近突然有些想法，想要通过流量分析平台来查看一些安全行为的记录。想了一下就干脆开启一个专题课程，每一课对一种协议提出问题并操作，查看产生的记录，分析并解答疑惑，让自己的技术和对攻防检测的理解更加扎实和深入。本次我们对RDP协议提出一些问题并验证结</p>
-<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>通过搭建Bro+ELK的平台，来分析网络中的流量，环境搭建可以参考：<a href="https://logz.io/blog/bro-elk-part-1/" target="_blank" rel="noopener">https://logz.io/blog/bro-elk-part-1/</a></p>
-<h3 id="问题1：RDP端口未开放的连接，网络数据什么样？"><a href="#问题1：RDP端口未开放的连接，网络数据什么样？" class="headerlink" title="问题1：RDP端口未开放的连接，网络数据什么样？"></a>问题1：RDP端口未开放的连接，网络数据什么样？</h3><p>正常的mstsc一般会发送3次请求，应用层发送数据和接受数据均为0，原始发送数据包长度为52bytes，原始接受数据包长度为40bytes。<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-1.png?raw=true" alt="image"><br>偶尔会出现两个连接记录到一条日志的情况<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-2.png?raw=true" alt="image"></p>
-<h3 id="问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样"><a href="#问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样" class="headerlink" title="问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样"></a>问题2：RDP端口开启，但认证失败或没有进行认证，数据包什么样</h3><p>rdp端口开启连接成功，但没有进行认证server端会返回2次5-6个包，这时应用层发送数据和接受数据已不为0<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-3.png?raw=true" alt="image">  </p>
-<h3 id="问题3：RDP连接成功，数据包是什么样"><a href="#问题3：RDP连接成功，数据包是什么样" class="headerlink" title="问题3：RDP连接成功，数据包是什么样"></a>问题3：RDP连接成功，数据包是什么样</h3><p>大小看操作时间、画面传输量等<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-4.png?raw=true" alt="image"></p>
-<h3 id="问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中"><a href="#问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中" class="headerlink" title="问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中"></a>问题4：通过RDP远程桌面复制文件到目标主机，是否记录在一条网络连接中</h3><p>以传输一个150M的视频文件为例<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-5.png?raw=true" alt="image"><br>经过确认，rdp远程桌面传输数据包会记录在一条网络连接的流量中<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-6.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-7.png?raw=true" alt="image"></p>
-<h3 id="问题5：遭受暴力破解的情况下会生成什么样的流量"><a href="#问题5：遭受暴力破解的情况下会生成什么样的流量" class="headerlink" title="问题5：遭受暴力破解的情况下会生成什么样的流量"></a>问题5：遭受暴力破解的情况下会生成什么样的流量</h3><p>我是用nrcack进行了10次密码尝试得到的所有网络连接如下：<br>其中有数据传输的记录为10条、第一条为成功登陆的记录，从数据包中可以看出失败记录数据包固定为1604成功的数据包记录为2363，差距较小，上图中其他的数据包判断为破解程序线程太高被服务器丢弃导致<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-8.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-9.png?raw=true" alt="image"><br>再使用hydra尝试10次登陆，同样有10条有数据包通讯的记录但是hydra的数据包大小与nrcack不同，可见数据包大小作为暴力破解的判断不能准确得出结论。而且hydra并没有暴力破解成功（字典存在的情况下，hydra真的没nrcack好用）记录的网络连接如下：<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-10.png?raw=true" alt="image">  </p>
-<h3 id="问题6：从数据包中得到远程登录用户名"><a href="#问题6：从数据包中得到远程登录用户名" class="headerlink" title="问题6：从数据包中得到远程登录用户名"></a>问题6：从数据包中得到远程登录用户名</h3><p>cookie字段代表的是登录的用户名，不过在数据包中存在截断问题<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-11.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-12.png?raw=true" alt="image"><br>cookie字段可以被工具伪造~<br><img src="https://github.com/rosetscmite/tu/blob/master/8/8-13.png?raw=true" alt="image">  </p>
-<h3 id="实验结论"><a href="#实验结论" class="headerlink" title="实验结论"></a>实验结论</h3><p>1.可通过返回包的大小和个数判断主机是否开启3389端口，若没有开启那频繁连接多个主机的3389端口则存在扫描嫌疑<br>2.如果一个主机频繁针对3389端口发送较小的数据包可能存在暴力破解的嫌疑，该阈值我觉得5000以下<br>3.如果一个主机对多个主机的3389端口产生较大的连接，那可能在通过rdp协议传播蠕虫病毒文件。（PS由于蠕虫病毒文件大小不一且大部分情况下较小，通过阈值来判断可行性有待研究）<br>4.根据一些特殊的cookie来检测是否存在异常登录行为  </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1979,7 +1996,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2001,7 +2018,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
