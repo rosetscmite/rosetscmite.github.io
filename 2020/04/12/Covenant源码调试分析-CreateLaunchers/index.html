@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="KNN算法," />
+  <meta name="keywords" content="Covenant,Dotnet," />
 
 
 
@@ -79,20 +79,32 @@
 
 
 
-<meta name="description" content="&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近闲暇时间研究一下机器学习的算法应用，随笔记录一些自己看到的精华部分和实验结果，先从最简单的邻近算法开始吧。 算法实现思想&amp;#160; &amp;#160; &amp;#160; &amp;#160;邻近算法，或者说K最近邻(kNN，k-NearestNeighbor)分类算法是数据挖掘分类技术中最简单的方法之一。所谓K最近邻，就是k个最近的邻居的意思，说的是每个样">
-<meta name="keywords" content="KNN算法">
+<meta name="description" content="Covenant源码调试分析-CreateLaunchers以前一直有想法去自己写一些攻击框架，正好趁着这次工作需求先调研一些攻击框架的工作过程。由于Covenant是C#编写，其编码成本低，容易二次开发，并且对Windows的支持尚佳，就从此框架先入手。 Launcher生成流程 入口获取下断点 使用浏览器调试工具获取交互接口，URL如下：  123456789/launcher/binary/">
+<meta name="keywords" content="Covenant,Dotnet">
 <meta property="og:type" content="article">
-<meta property="og:title" content="KNN算法-初步了解">
-<meta property="og:url" content="http://yoursite.com/2018/05/27/KNN算法-初步了解/index.html">
+<meta property="og:title" content="Covenant源码调试分析-CreateLaunchers">
+<meta property="og:url" content="http://yoursite.com/2020/04/12/Covenant源码调试分析-CreateLaunchers/index.html">
 <meta property="og:site_name" content="L&#39;s tale">
-<meta property="og:description" content="&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近闲暇时间研究一下机器学习的算法应用，随笔记录一些自己看到的精华部分和实验结果，先从最简单的邻近算法开始吧。 算法实现思想&amp;#160; &amp;#160; &amp;#160; &amp;#160;邻近算法，或者说K最近邻(kNN，k-NearestNeighbor)分类算法是数据挖掘分类技术中最简单的方法之一。所谓K最近邻，就是k个最近的邻居的意思，说的是每个样">
+<meta property="og:description" content="Covenant源码调试分析-CreateLaunchers以前一直有想法去自己写一些攻击框架，正好趁着这次工作需求先调研一些攻击框架的工作过程。由于Covenant是C#编写，其编码成本低，容易二次开发，并且对Windows的支持尚佳，就从此框架先入手。 Launcher生成流程 入口获取下断点 使用浏览器调试工具获取交互接口，URL如下：  123456789/launcher/binary/">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/3/3-1.png?raw=true">
-<meta property="og:updated_time" content="2018-05-27T12:12:44.991Z">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412205313645.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412182839069.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412184830764.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412190055476.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412191305853.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412193849526.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412194654073.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412195100068.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412195216286.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412200521636.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412201504316.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412201353408.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412201818815.png?raw=true">
+<meta property="og:updated_time" content="2020-04-12T12:58:31.877Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="KNN算法-初步了解">
-<meta name="twitter:description" content="&amp;#160; &amp;#160; &amp;#160; &amp;#160;最近闲暇时间研究一下机器学习的算法应用，随笔记录一些自己看到的精华部分和实验结果，先从最简单的邻近算法开始吧。 算法实现思想&amp;#160; &amp;#160; &amp;#160; &amp;#160;邻近算法，或者说K最近邻(kNN，k-NearestNeighbor)分类算法是数据挖掘分类技术中最简单的方法之一。所谓K最近邻，就是k个最近的邻居的意思，说的是每个样">
-<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/3/3-1.png?raw=true">
+<meta name="twitter:title" content="Covenant源码调试分析-CreateLaunchers">
+<meta name="twitter:description" content="Covenant源码调试分析-CreateLaunchers以前一直有想法去自己写一些攻击框架，正好趁着这次工作需求先调研一些攻击框架的工作过程。由于Covenant是C#编写，其编码成本低，容易二次开发，并且对Windows的支持尚佳，就从此框架先入手。 Launcher生成流程 入口获取下断点 使用浏览器调试工具获取交互接口，URL如下：  123456789/launcher/binary/">
+<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/17/image-20200412205313645.png?raw=true">
 
 
 
@@ -122,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/05/27/KNN算法-初步了解/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/04/12/Covenant源码调试分析-CreateLaunchers/"/>
 
 
 
 
 
-  <title>KNN算法-初步了解 | L's tale</title>
+  <title>Covenant源码调试分析-CreateLaunchers | L's tale</title>
   
 
 
@@ -265,7 +277,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/27/KNN算法-初步了解/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/12/Covenant源码调试分析-CreateLaunchers/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="L.Lawliet">
@@ -282,7 +294,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">KNN算法-初步了解</h1>
+          <h1 class="post-title" itemprop="name headline">Covenant源码调试分析-CreateLaunchers</h1>
         
 
         <div class="post-meta">
@@ -294,8 +306,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-27T16:44:36+08:00">
-                2018-05-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-12T20:55:58+08:00">
+                2020-04-12
               </time>
             
 
@@ -317,8 +329,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/机器学习/" itemprop="url" rel="index">
-                    <span itemprop="name">机器学习</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -354,28 +366,58 @@
       
 
       
-        <p>&#160; &#160; &#160; &#160;最近闲暇时间研究一下机器学习的算法应用，随笔记录一些自己看到的精华部分和实验结果，先从最简单的邻近算法开始吧。</p>
-<h3 id="算法实现思想"><a href="#算法实现思想" class="headerlink" title="算法实现思想"></a>算法实现思想</h3><p>&#160; &#160; &#160; &#160;邻近算法，或者说K最近邻(kNN，k-NearestNeighbor)分类算法是数据挖掘分类技术中最简单的方法之一。所谓K最近邻，就是k个最近的邻居的意思，说的是每个样本都可以用它最接近的k个邻居来代表。</p>
-<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>&#160; &#160; &#160; &#160;kNN算法的核心思想是如果一个样本在特征空间中的k个最相邻的样本中的大多数属于某一个类别，则该样本也属于这个类别，并具有这个类别上样本的特性。该方法在确定分类决策上只依据最邻近的一个或者几个样本的类别来决定待分样本所属的类别。 kNN方法在类别决策时，只与极少量的相邻样本有关。由于kNN方法主要靠周围有限的邻近的样本，而不是靠判别类域的方法来确定所属类别的，因此对于类域的交叉或重叠较多的待分样本集来说，kNN方法较其他方法更为适合</p>
-<h3 id="重点参数"><a href="#重点参数" class="headerlink" title="重点参数"></a>重点参数</h3><ul>
-<li>n_neighbors：指定K值（参考K个邻居的值）</li>
-<li>weights：权重<ul>
-<li>uniform：k个邻居的权重平等</li>
-<li>distance：距离越近权重越高</li>
-<li>callable：自定义举例与权重的关系</li>
-</ul>
+        <h1 id="Covenant源码调试分析-CreateLaunchers"><a href="#Covenant源码调试分析-CreateLaunchers" class="headerlink" title="Covenant源码调试分析-CreateLaunchers"></a>Covenant源码调试分析-CreateLaunchers</h1><p>以前一直有想法去自己写一些攻击框架，正好趁着这次工作需求先调研一些攻击框架的工作过程。由于Covenant是C#编写，其编码成本低，容易二次开发，并且对Windows的支持尚佳，就从此框架先入手。</p>
+<h3 id="Launcher生成流程"><a href="#Launcher生成流程" class="headerlink" title="Launcher生成流程"></a>Launcher生成流程</h3><p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412205313645.png?raw=true" alt="image-20200412205313645"></p>
+<h3 id="入口获取下断点"><a href="#入口获取下断点" class="headerlink" title="入口获取下断点"></a>入口获取下断点</h3><ol>
+<li>使用浏览器调试工具获取交互接口，URL如下：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/launcher/binary</span><br><span class="line">/launcher/powershell</span><br><span class="line">/launcher/msbuild</span><br><span class="line">/launcher/installutil</span><br><span class="line">/launcher/wmic</span><br><span class="line">/launcher/regsvr32</span><br><span class="line">/launcher/mshta</span><br><span class="line">/launcher/cscript</span><br><span class="line">/launcher/wscript</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li><p>Covenant项目的launcher模块前端交互处理逻辑在Controllers/ViewControllers/LauncherController.cs，这里先以Binary类型的Launcher为例</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412182839069.png?raw=true" alt="image-20200412182839069"></p>
 </li>
-<li>algorithm：算法<ul>
-<li>ball_tree</li>
-<li>kd_tree</li>
-<li>brute</li>
-<li>auto：交给fit函数决定算法</li>
-</ul>
-</li>
-</ul>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>&#160; &#160; &#160; &#160;利用datasets库生成200个样本分为3类，并取样本的X,Y的最大最小值分别±1，为测试样本的最大最小值，步长为0.02生成测试集合，具体代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/python</span><br><span class="line"># -*- coding: UTF-8 -*-</span><br><span class="line"></span><br><span class="line">import numpy as np</span><br><span class="line">import matplotlib.pyplot as plt</span><br><span class="line">from matplotlib.colors import ListedColormap</span><br><span class="line">from sklearn import neighbors</span><br><span class="line">from sklearn.datasets.samples_generator import make_classification</span><br><span class="line"># 生成样本集合，200个样本，2个特征维度，3个分类标签</span><br><span class="line">X, y = make_classification(n_samples=200, n_features=2, n_redundant=0,</span><br><span class="line">                             n_clusters_per_class=1, n_classes=3)</span><br><span class="line">clf = neighbors.KNeighborsClassifier(n_neighbors=15, weights=&apos;distance&apos;)</span><br><span class="line">clf.fit(X,y)</span><br><span class="line">x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1</span><br><span class="line">y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1</span><br><span class="line">h = 0.02</span><br><span class="line"># np.arange(start,end,step)生成一个数组</span><br><span class="line"># np.meshgrid(array1,array2)生成两个同行同列的多维数组</span><br><span class="line">xx, yy = np.meshgrid(np.arange(x_min, x_max, h),np.arange(y_min, y_max, h))</span><br><span class="line"># np.ravel将多维数组降成一维</span><br><span class="line"># np.c_将两个一维数组相同的index值，拼接成一个新的二维数组</span><br><span class="line">Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])</span><br><span class="line"># Create color maps</span><br><span class="line">cmap_light = ListedColormap([&apos;#AAFFAA&apos;, &apos;#FFAAAA&apos;, &apos;#AAAAFF&apos;]) #给不同区域赋以颜色</span><br><span class="line">cmap_bold = ListedColormap([&apos;#FF0000&apos;, &apos;#003300&apos;, &apos;#0000FF&apos;])#给不同属性的点赋以颜色</span><br><span class="line">#将预测的结果在平面坐标中画出其类别区域</span><br><span class="line"># shape(二维数组)返回a,b a=行数，b=维数</span><br><span class="line"># reshape(一维数组, a.b)返回一个a行， b维的</span><br><span class="line">Z = Z.reshape(xx.shape)</span><br><span class="line">plt.figure()</span><br><span class="line">plt.pcolormesh(xx, yy, Z, cmap=cmap_light)</span><br><span class="line"># 也画出所有的训练集数据</span><br><span class="line">plt.scatter(X[:, 0], X[:, 1], c=y, cmap=cmap_bold)</span><br><span class="line">plt.xlim(xx.min(), xx.max())</span><br><span class="line">plt.ylim(yy.min(), yy.max())</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>利用matplotlib绘制测试集合预测结果的伪彩图和样本集合散点图，结果如下：<br><img src="https://github.com/rosetscmite/tu/blob/master/3/3-1.png?raw=true" alt="image"></p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://baike.baidu.com/item/%E9%82%BB%E8%BF%91%E7%AE%97%E6%B3%95/1151153?fr=aladdin" target="_blank" rel="noopener">https://baike.baidu.com/item/%E9%82%BB%E8%BF%91%E7%AE%97%E6%B3%95/1151153?fr=aladdin</a><br><a href="http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html" target="_blank" rel="noopener">http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html</a></p>
+</ol>
+<h3 id="BinaryLauncher分析"><a href="#BinaryLauncher分析" class="headerlink" title="BinaryLauncher分析"></a>BinaryLauncher分析</h3><p><strong>EditBinaryLauncher方法</strong></p>
+<ol>
+<li>进入<code>EditBinaryLauncher</code>方法，从方法名和代码内容来看主要是对BinaryLauncher做了做了一个修改更新的操作，最后返回新的BinaryLauncher。</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412184830764.png?raw=true" alt="image-20200412184830764"></p>
+<ol start="2">
+<li>进入<code>GetBinaryLauncher</code>方法查看，该方法去数据库提取当前BinaryLauncher的配置</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412190055476.png?raw=true" alt="image-20200412190055476"></p>
+<ol start="3">
+<li>在生成新的Launcher时，我修改了ConnectAttempts的值，最后通过<code>SaveChangesAsync</code>保存</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412191305853.png?raw=true" alt="image-20200412191305853"></p>
+<p><strong>GenerateBinaryLauncher方法</strong></p>
+<ol>
+<li>GenerateBinaryLauncher方法主要分为两个部分定义Grunt的属性和生成Grunt代码并编译</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412193849526.png?raw=true" alt="image-20200412193849526"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412194654073.png?raw=true" alt="image-20200412194654073"></p>
+<ol start="2">
+<li>进入<code>GruntTemplateReplace</code>方法，可以看到传入的<code>template.StagerCode</code>参数内容，该代码位Grunt模板代码</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412195100068.png?raw=true" alt="image-20200412195100068"></p>
+<ol start="2">
+<li>查看<code>GruntTemplateReplace</code>方法代码逻辑，根据通讯类型从配置文件中读取相应的值替换Stager代码，本次测试采用的HTTP信道，最后返回CodeTemplate</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412195216286.png?raw=true" alt="image-20200412195216286"></p>
+<ol start="3">
+<li>进入<code>CompileGruntCode</code>方法，可以看到该方法调用了修改和编译方法来输出编译好的二进制数据</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412200521636.png?raw=true" alt="image-20200412200521636"></p>
+<ol start="4">
+<li>由于Source的值无法调试获得，所以在方法外添加一条模板修改方法，查看替换后的结果。可以看到相关的值已经替换为配置文件中的属性</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412201504316.png?raw=true" alt="image-20200412201504316"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412201353408.png?raw=true" alt="image-20200412201353408"></p>
+<ol start="5">
+<li>进入<code>GetLauncher</code>方法，逻辑只是把二进制数据编码返回（感觉传了很多没用的），最后将launcher对象保存，同步到数据库，至此BinLauncher生成完毕。</li>
+</ol>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/17/image-20200412201818815.png?raw=true" alt="image-20200412201818815"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本次分析了BinaryLauncher的生成过程，过程比较简单。就是从数据库读取StagerCode模板，然后进行修改。我也看了其他Launcher的代码Binary是一样的。</p>
 
       
     </div>
@@ -393,7 +435,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/KNN算法/" rel="tag"><i class="fa fa-tag"></i> KNN算法</a>
+            <a href="/tags/Covenant/" rel="tag"><i class="fa fa-tag"></i> Covenant</a>
+          
+            <a href="/tags/Dotnet/" rel="tag"><i class="fa fa-tag"></i> Dotnet</a>
           
         </div>
       
@@ -406,8 +450,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/12/青海行/" rel="next" title="青海行">
-                <i class="fa fa-chevron-left"></i> 青海行
+              <a href="/2020/04/04/Covenant-C2框架调研及扩展/" rel="next" title="Covenant C2框架调研及扩展">
+                <i class="fa fa-chevron-left"></i> Covenant C2框架调研及扩展
               </a>
             
           </div>
@@ -415,10 +459,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/07/02/利用决策树检测web攻击/" rel="prev" title="利用决策树检测web攻击">
-                利用决策树检测web攻击 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -554,7 +594,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法实现思想"><span class="nav-number">1.</span> <span class="nav-text">算法实现思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">2.</span> <span class="nav-text">使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重点参数"><span class="nav-number">3.</span> <span class="nav-text">重点参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验"><span class="nav-number">4.</span> <span class="nav-text">实验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Covenant源码调试分析-CreateLaunchers"><span class="nav-number">1.</span> <span class="nav-text">Covenant源码调试分析-CreateLaunchers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Launcher生成流程"><span class="nav-number">1.0.1.</span> <span class="nav-text">Launcher生成流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#入口获取下断点"><span class="nav-number">1.0.2.</span> <span class="nav-text">入口获取下断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BinaryLauncher分析"><span class="nav-number">1.0.3.</span> <span class="nav-text">BinaryLauncher分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.0.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
