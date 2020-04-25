@@ -98,7 +98,7 @@
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/18/image-20200425230915567.png?raw=true">
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/18/image-20200425231155096.png?raw=true">
 <meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/18/image-20200425231439675.png?raw=true">
-<meta property="og:updated_time" content="2020-04-25T15:22:53.604Z">
+<meta property="og:updated_time" content="2020-04-25T15:26:16.532Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Covenant C2源码调试分析-Grunt">
 <meta name="twitter:description" content="Covenant C2源码调试分析-Grunt在上篇Covenant创建Launcher时，我们就获取到了Grunt的源码。本篇我们来调试一下Grunt的源码，了解其工作过程。 Grunt工作流程经过我前期的调试大概了解了一下Grunt的主要工作内容，因为Covenant使用的是非堆成加密，所以Grunt的主要工作就是先进行密钥的交换进行身份验证，然后加载ExecuteStage。 通信过程如下图">
@@ -374,7 +374,6 @@
 <li>Stage1：Client使用协商密钥加密挑战密钥C1发起身份验证请求，Server使用协商密钥加密返回挑战密钥C1+C2</li>
 <li>Stage2：Client使用协商密钥加密挑战密钥C2，Server解密后验证C2一致则完成认证，返回ExecuteStage</li>
 </ul>
-<p>在</p>
 <p><strong>Stage0:</strong></p>
 <ol>
 <li><p>将预设的共享密钥是作为AESKEY</p>
