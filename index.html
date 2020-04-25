@@ -259,6 +259,198 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/25/Covenant-C2源码调试分析-Grunt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/04/25/Covenant-C2源码调试分析-Grunt/" itemprop="url">Covenant C2源码调试分析-Grunt</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-25T23:21:04+08:00">
+                2020-04-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Covenant-C2源码调试分析-Grunt"><a href="#Covenant-C2源码调试分析-Grunt" class="headerlink" title="Covenant C2源码调试分析-Grunt"></a>Covenant C2源码调试分析-Grunt</h1><p>在上篇Covenant创建Launcher时，我们就获取到了Grunt的源码。本篇我们来调试一下Grunt的源码，了解其工作过程。</p>
+<h3 id="Grunt工作流程"><a href="#Grunt工作流程" class="headerlink" title="Grunt工作流程"></a>Grunt工作流程</h3><p>经过我前期的调试大概了解了一下Grunt的主要工作内容，因为Covenant使用的是非堆成加密，所以Grunt的主要工作就是先进行密钥的交换进行身份验证，然后加载ExecuteStage。</p>
+<p>通信过程如下图：</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425223213884.png?raw=true" alt="image-20200425223213884"></p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>Grunt身份验证密钥交换过程分为Stage0、Stage1、Stage2三个步骤。三个步骤的通信内容如下：</p>
+<ul>
+<li>Stage0：Client提交Rsa密钥，Server使用Rsa密钥加密下发协商密钥</li>
+<li>Stage1：Client使用协商密钥加密挑战密钥C1发起身份验证请求，Server使用协商密钥加密返回挑战密钥C1+C2</li>
+<li>Stage2：Client使用协商密钥加密挑战密钥C2，Server解密后验证C2一致则完成认证，返回ExecuteStage</li>
+</ul>
+<p>在</p>
+<p><strong>Stage0:</strong></p>
+<ol>
+<li><p>将预设的共享密钥是作为AESKEY</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425225309663.png?raw=true" alt="image-20200425225309663"></p>
+</li>
+<li><p>使用共享密钥加密RSA密钥，发送给服务器</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425225604567.png?raw=true" alt="image-20200425225604567"></p>
+</li>
+<li><p>揭秘获得RSA密钥，并创建协商密钥</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425225742110.png?raw=true" alt="image-20200425225742110"></p>
+</li>
+<li><p>使用RSA密钥加密协商密钥，发送给客户端</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425225941487.png?raw=true" alt="image-20200425225941487"></p>
+</li>
+<li><p>客户端收到后解密，获取协商密钥将其作为AES加密密钥</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425230217162.png?raw=true" alt="image-20200425230217162"></p>
+</li>
+</ol>
+<p><strong>Stage1:</strong></p>
+<ol>
+<li><p>客户端使用协商密钥加密4位挑战密钥发送给服务器</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425230336071.png?raw=true" alt="image-20200425230336071"></p>
+</li>
+<li><p>服务器收到挑战密钥1后新增挑战密钥2，将1、2密钥拼接发送客户端，进行身份认证</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425230624103.png?raw=true" alt="image-20200425230624103"></p>
+</li>
+</ol>
+<p><strong>Stage2:</strong></p>
+<ol>
+<li><p>客户端收到回复后解密信息，验证密钥1是否一致，将挑战密钥2发送给服务器，进行身份认证</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425230915567.png?raw=true" alt="image-20200425230915567"></p>
+</li>
+<li><p>服务器收到客户端挑战密钥2后进行验证，如果通过，则调用编译ExecuteStageAPI返回ExecuteStage代码</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425231155096.png?raw=true" alt="image-20200425231155096"></p>
+</li>
+<li><p>客户端收到ExecuteStage后进行内存加载</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/18/image-20200425231439675.png?raw=true" alt="image-20200425231439675"></p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本次的源码分析只给出了最核心的密钥交换、身份验证、ExecuteSatge加载过程。其实在分析的过程中还牵扯到框架内互相调用的过程、API的调用、code是如何替换编译的等等，等后期分析完源码后我会写一个Convnant的架构图，可以更清晰的快速了解架构调用逻辑。本人也没有系统的学习的C#在分析代码的过程中，花了一些力气才完全弄懂，心情舒畅了很多。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/12/Covenant源码调试分析-CreateLaunchers/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1808,176 +2000,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/16/基于bro的安全场景研究测试-DNS隧道/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="L.Lawliet">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/L.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="L's tale">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/12/16/基于bro的安全场景研究测试-DNS隧道/" itemprop="url">基于bro的安全场景研究测试-DNS隧道</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-16T16:28:40+08:00">
-                2018-12-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/安全建设/" itemprop="url" rel="index">
-                    <span itemprop="name">安全建设</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&#160; &#160; &#160; &#160;最近搭建了隧道的实验环境，想研究一下各种协议隧道通讯的记录情况，在某些环境下企业限制内网机器访问外部资源但放行了DNS流量，黑客会使用DNS隧道来传输数据和执行命令，这次我们先看看DNS隧道使用过程中的数据包情况。</p>
-<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>&#160; &#160; &#160; &#160;前两天我使用iodine先建立了DNS隧道通讯的环境，环境搭建的方法可以参考：<a href="https://rosetscmite.github.io/2018/12/13/%E5%9F%BA%E4%BA%8Eiodine%E5%BB%BA%E7%AB%8BDNS%E9%9A%A7%E9%81%93/" target="_blank" rel="noopener">https://rosetscmite.github.io/2018/12/13/%E5%9F%BA%E4%BA%8Eiodine%E5%BB%BA%E7%AB%8BDNS%E9%9A%A7%E9%81%93/</a></p>
-<h3 id="问题1：DNS隧道建立后有哪些特征"><a href="#问题1：DNS隧道建立后有哪些特征" class="headerlink" title="问题1：DNS隧道建立后有哪些特征"></a>问题1：DNS隧道建立后有哪些特征</h3><p>DNS隧道建立后依靠不断发送query信息来判断隧道存活性<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-1.png?raw=true" alt="image">  </p>
-<h3 id="问题2：DNS隧道传输时有哪些特征"><a href="#问题2：DNS隧道传输时有哪些特征" class="headerlink" title="问题2：DNS隧道传输时有哪些特征"></a>问题2：DNS隧道传输时有哪些特征</h3><p>通过DNS隧道传输时，客户端将数据编码后作为主机名向DNS服务器提交，DNS服务端解码后读取数据<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-2.png?raw=true" alt="image"><br>主机名的长度可以通过iodine的参数来调节默认的长度为255，可以通过调短主机名长度来提高隐蔽性，下图与上图为同一个操作，把iodine的主机名长度设置为100后，FQDN的长度明显缩短，但请求次数会增加，因为传输的数据量不变<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-3.png?raw=true" alt="image"><br>iodine可以不发送标准的DNS报文，直接发送特定畸形的DNS报文来传输数据，这种传输方式规避了特定的记录和主机名，由于数据包非标准格式，流量检测设备也无法解析，对溯源造成困扰<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-4.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-5.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-6.png?raw=true" alt="image">  </p>
-<h3 id="问题3：DNS隧道client端是如何接受命令的"><a href="#问题3：DNS隧道client端是如何接受命令的" class="headerlink" title="问题3：DNS隧道client端是如何接受命令的"></a>问题3：DNS隧道client端是如何接受命令的</h3><p>在隧道服务端向客户端发送命令，通过查看DNS记录可以发现服务端通过回复心跳记录将命令编码后放在Answers字段发送给客户端，客户端解码后读取命令并执行，将回显信息通过Query请求出去，服务端解码后读取回显信息<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-7.png?raw=true" alt="image">  </p>
-<h3 id="问题4：DNS隧道传输文件时是否会记录再一条flow日志中"><a href="#问题4：DNS隧道传输文件时是否会记录再一条flow日志中" class="headerlink" title="问题4：DNS隧道传输文件时是否会记录再一条flow日志中"></a>问题4：DNS隧道传输文件时是否会记录再一条flow日志中</h3><p>通过标准DNS数据包记录传输数据时，数据通过主机名和Answers进行传递，每一组DNS请求与回应记录到一条flow<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-8.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-9.png?raw=true" alt="image"><br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-10.png?raw=true" alt="image"><br>通过畸形DNS数据包传输数据时，由于数据包畸形没有解析到DNS记录，传输数据时记录到一条flow日志中<br><img src="https://github.com/rosetscmite/tu/blob/master/10/10-11.png?raw=true" alt="image">  </p>
-<h3 id="实验结论："><a href="#实验结论：" class="headerlink" title="实验结论："></a>实验结论：</h3><p>从实验结果看出，DNS隧道主要分为两种模式一是将数据编码通过主机名进行传递，一是通过畸形DNS数据包进行传递，检测方法如下：</p>
-<p><strong>将数据编码通过主机名进行传递的方式：</strong></p>
-<ol>
-<li>检测每个域的主机名数：因为绕过DNS记录缓存，DNS隧道发送的记录都是不同的（包括心跳包），所以可以检测窗口时间内同一个域下的主机名数量来判断异常  </li>
-<li>检测DNS域名长度：通过DNS隧道传输数据时，FQDN长度一般会较长与正常域名  </li>
-<li>检测DNS不常见记录类型：统计窗口时间内同一个域下不常见的记录类型数量  </li>
-</ol>
-<p><strong>通过畸形DNS数据包进行传递的方式：</strong></p>
-<ol>
-<li>单个DNS flow的数据包较大  </li>
-<li>单个IP时间窗口内检测到较多畸形DNS数据包  </li>
-</ol>
-<p><strong>通用检测方式：</strong></p>
-<ol>
-<li>每个IP地址的DNS流量异常  </li>
-<li>DNS服务器的地理位置异常  </li>
-<li>访问非受信的DNS服务器  </li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2027,7 +2054,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
