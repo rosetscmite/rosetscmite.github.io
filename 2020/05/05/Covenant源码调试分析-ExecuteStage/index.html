@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="开源软件," />
+  <meta name="keywords" content="Covenant,Dotnet," />
 
 
 
@@ -79,20 +79,28 @@
 
 
 
-<meta name="description" content="前言最近读了兜哥的《企业安全建设入门:基于开源软件打造企业网络安全》，书的内容相对入门，主要介绍一些领域的开源软件和一些简单的配置,快速的过了一遍书上的内容后提炼精华的部分做成一个脑图，以便总结书中的内容。以后看脑图就知道书中内容，减少阅读时间。书中的干货不多，不建议购买。哈哈~ 希望安全领域可以多出一些有内容的新书分享给大家。">
-<meta name="keywords" content="开源软件">
+<meta name="description" content="Covenant源码调试分析-Execute在上篇分析StagerCode时，我们就获取到了ExectuteCode的源码。本篇我们来调试一下Execute的源码，了解其工作过程。经过分析Execute主要负责两个功能，注册信息提交以及任务监听。 Execute工作流程 源码分析调试准备 在StagerCode调用ExectuteCode时，需要传入一些参数并且利用Assembly.Load在内存">
+<meta name="keywords" content="Covenant,Dotnet">
 <meta property="og:type" content="article">
-<meta property="og:title" content="基于开源软件打造企业网络安全-读后感">
-<meta property="og:url" content="http://yoursite.com/2019/05/01/基于开源软件打造企业网络安全-读后感/index.html">
+<meta property="og:title" content="Covenant源码调试分析-ExecuteStage">
+<meta property="og:url" content="http://yoursite.com/2020/05/05/Covenant源码调试分析-ExecuteStage/index.html">
 <meta property="og:site_name" content="L&#39;s tale">
-<meta property="og:description" content="前言最近读了兜哥的《企业安全建设入门:基于开源软件打造企业网络安全》，书的内容相对入门，主要介绍一些领域的开源软件和一些简单的配置,快速的过了一遍书上的内容后提炼精华的部分做成一个脑图，以便总结书中的内容。以后看脑图就知道书中内容，减少阅读时间。书中的干货不多，不建议购买。哈哈~ 希望安全领域可以多出一些有内容的新书分享给大家。">
+<meta property="og:description" content="Covenant源码调试分析-Execute在上篇分析StagerCode时，我们就获取到了ExectuteCode的源码。本篇我们来调试一下Execute的源码，了解其工作过程。经过分析Execute主要负责两个功能，注册信息提交以及任务监听。 Execute工作流程 源码分析调试准备 在StagerCode调用ExectuteCode时，需要传入一些参数并且利用Assembly.Load在内存">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/13/13-1.png?raw=true">
-<meta property="og:updated_time" content="2019-05-01T14:50:11.383Z">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/CovenantExecuteStage.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200501182134068.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200501182437640.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200502082621477.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200502083633727.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200502085407529.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200502090808000.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200502090904237.png?raw=true">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/19/image-20200502091242320.png?raw=true">
+<meta property="og:updated_time" content="2020-05-05T15:31:59.714Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="基于开源软件打造企业网络安全-读后感">
-<meta name="twitter:description" content="前言最近读了兜哥的《企业安全建设入门:基于开源软件打造企业网络安全》，书的内容相对入门，主要介绍一些领域的开源软件和一些简单的配置,快速的过了一遍书上的内容后提炼精华的部分做成一个脑图，以便总结书中的内容。以后看脑图就知道书中内容，减少阅读时间。书中的干货不多，不建议购买。哈哈~ 希望安全领域可以多出一些有内容的新书分享给大家。">
-<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/13/13-1.png?raw=true">
+<meta name="twitter:title" content="Covenant源码调试分析-ExecuteStage">
+<meta name="twitter:description" content="Covenant源码调试分析-Execute在上篇分析StagerCode时，我们就获取到了ExectuteCode的源码。本篇我们来调试一下Execute的源码，了解其工作过程。经过分析Execute主要负责两个功能，注册信息提交以及任务监听。 Execute工作流程 源码分析调试准备 在StagerCode调用ExectuteCode时，需要传入一些参数并且利用Assembly.Load在内存">
+<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/19/CovenantExecuteStage.png?raw=true">
 
 
 
@@ -122,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/05/01/基于开源软件打造企业网络安全-读后感/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/05/05/Covenant源码调试分析-ExecuteStage/"/>
 
 
 
 
 
-  <title>基于开源软件打造企业网络安全-读后感 | L's tale</title>
+  <title>Covenant源码调试分析-ExecuteStage | L's tale</title>
   
 
 
@@ -265,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/05/01/基于开源软件打造企业网络安全-读后感/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/05/Covenant源码调试分析-ExecuteStage/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="L.Lawliet">
@@ -282,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">基于开源软件打造企业网络安全-读后感</h1>
+          <h1 class="post-title" itemprop="name headline">Covenant源码调试分析-ExecuteStage</h1>
         
 
         <div class="post-meta">
@@ -294,8 +302,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-01T22:48:34+08:00">
-                2019-05-01
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-05T23:30:41+08:00">
+                2020-05-05
               </time>
             
 
@@ -317,8 +325,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/读后感/" itemprop="url" rel="index">
-                    <span itemprop="name">读后感</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -354,7 +362,43 @@
       
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近读了兜哥的《企业安全建设入门:基于开源软件打造企业网络安全》，书的内容相对入门，主要介绍一些领域的开源软件和一些简单的配置,快速的过了一遍书上的内容后提炼精华的部分做成一个脑图，以便总结书中的内容。以后看脑图就知道书中内容，减少阅读时间。书中的干货不多，不建议购买。哈哈~ 希望安全领域可以多出一些有内容的新书分享给大家。<br><img src="https://github.com/rosetscmite/tu/blob/master/13/13-1.png?raw=true" alt="image"> </p>
+        <h1 id="Covenant源码调试分析-Execute"><a href="#Covenant源码调试分析-Execute" class="headerlink" title="Covenant源码调试分析-Execute"></a>Covenant源码调试分析-Execute</h1><p>在上篇分析StagerCode时，我们就获取到了ExectuteCode的源码。本篇我们来调试一下Execute的源码，了解其工作过程。经过分析Execute主要负责两个功能，注册信息提交以及任务监听。</p>
+<h3 id="Execute工作流程"><a href="#Execute工作流程" class="headerlink" title="Execute工作流程"></a>Execute工作流程</h3><p><img src="https://github.com/rosetscmite/tu/blob/master/19/CovenantExecuteStage.png?raw=true" alt="image-20200501182134068"></p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p><strong>调试准备</strong></p>
+<p>在StagerCode调用ExectuteCode时，需要传入一些参数并且利用Assembly.Load在内存中加载数据，为了方便调试我们直接将获取的ExectuteCode源码与StagerCode合并在一个程序中，直接调用ExectuteCode中的Execute方法。</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200501182134068.png?raw=true" alt="image-20200501182134068"></p>
+<p><strong>注册信息提交</strong></p>
+<ol>
+<li><p>在ExecuteCode刚运行时候会收集本机的主机名、IP地址、操作系统类型、进程名、进程完整性级别、用户域、用户名属性上传至Server端。</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200501182437640.png?raw=true" alt="image-20200501182437640"></p>
+</li>
+<li><p>Server端收到Client提交的信息后，进行解码、解密，提取相关的注册信息，最后push到缓存读进数据库。</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200502082621477.png?raw=true" alt="image-20200502082621477"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200502083633727.png?raw=true" alt="image-20200502083633727"></p>
+</li>
+</ol>
+<p><strong>任务监听</strong></p>
+<ol>
+<li><p>任务监听是核心功能用于接收远程任务执行命令，ExecuteStage中利用一个无限while循环进行任务监听。任务类型分为4种：</p>
+<ul>
+<li>SetOption:设置会话属性</li>
+<li>Jobs：查看当前任务</li>
+<li>Exit：结束会话</li>
+<li>default：执行监听到的任务</li>
+</ul>
+</li>
+<li><p>Server端在创建任务时读取Web传递的参数创建对象，传递给CreateGruntTasking方法</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200502085407529.png?raw=true" alt="image-20200502085407529"></p>
+</li>
+<li><p>当传入任务参数后，Server根据任务的ID去数据库中寻找payload，进行编译下发。</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200502090808000.png?raw=true" alt="image-20200502090808000"></p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200502090904237.png?raw=true" alt="image-20200502090904237"></p>
+</li>
+<li><p>Client在执行任务时调用TaskExecute方法，该方法提取参数和Assembled进行内存执行，并且返回执行结果。</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/19/image-20200502091242320.png?raw=true" alt="image-20200502091242320"></p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>至此，利用三篇小短文对Covenant从创建launchers-&gt;LoadStager-&gt;ExecuteStager的流程跑个通，Covenant中还有很多为了支持此流程写的校验、API等，限于文章篇幅就不一一叙述了。由于covenant目前的payload都是基于.net core的，后续为了支持我会尝试在此架构上添加Python、c的payload。</p>
 
       
     </div>
@@ -372,7 +416,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/开源软件/" rel="tag"><i class="fa fa-tag"></i> 开源软件</a>
+            <a href="/tags/Covenant/" rel="tag"><i class="fa fa-tag"></i> Covenant</a>
+          
+            <a href="/tags/Dotnet/" rel="tag"><i class="fa fa-tag"></i> Dotnet</a>
           
         </div>
       
@@ -385,8 +431,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/13/osquery-初步了解/" rel="next" title="osquery-初步了解">
-                <i class="fa fa-chevron-left"></i> osquery-初步了解
+              <a href="/2020/04/25/Covenant-C2源码调试分析-Grunt/" rel="next" title="Covenant C2源码调试分析-Grunt">
+                <i class="fa fa-chevron-left"></i> Covenant C2源码调试分析-Grunt
               </a>
             
           </div>
@@ -394,10 +440,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/03/19/ATT-CK与SIEM的结合应用思考/" rel="prev" title="ATT&CK与SIEM的结合应用思考">
-                ATT&CK与SIEM的结合应用思考 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -533,7 +575,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Covenant源码调试分析-Execute"><span class="nav-number">1.</span> <span class="nav-text">Covenant源码调试分析-Execute</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Execute工作流程"><span class="nav-number">1.0.1.</span> <span class="nav-text">Execute工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">1.0.2.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.0.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

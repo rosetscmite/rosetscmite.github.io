@@ -259,6 +259,161 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/18/基于Ptunnel建立ICMP隧道/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/12/18/基于Ptunnel建立ICMP隧道/" itemprop="url">基于Ptunnel建立ICMP隧道</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-18T22:31:47+08:00">
+                2018-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/渗透测试/" itemprop="url" rel="index">
+                    <span itemprop="name">渗透测试</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&#160; &#160; &#160; &#160;在某些渗透测试环境下，获得了一个主机的权限但是该主机没有访问外网的权限，对于这种较为严格的网络环境，第一时间想到的就是隧道技术。常见的隧道技术有SSH\DNS\ICMP\端口转发等，大多数端口都存在被禁用的可能，但是ICMP作为基础服务被禁用的可能性却极小，在常用协议都被禁用的情况下可以考虑使用ICMP隧道。  </p>
+<h3 id="网络拓扑"><a href="#网络拓扑" class="headerlink" title="网络拓扑"></a>网络拓扑</h3><p><img src="https://github.com/rosetscmite/tu/blob/master/11/11-1.png?raw=true" alt="image"><br>内网主机10.10.10.0/24除了ICMP通讯不能主动访问外网任何资源，20.20.20.101为hack的ICMP隧道服务端。  </p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>由于通过ICMP协议建立隧道，为了让隧道服务端能够处理收到的ICMP报文，需要禁用系统本身的ICMP响应机制，这里先关闭hack机器的ICMP响应机制</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo 1 &gt; /proc/sys/net/ipv4/icmp_echo_ignore_all</span><br></pre></td></tr></table></figure>
+<h3 id="Ptunnel的使用"><a href="#Ptunnel的使用" class="headerlink" title="Ptunnel的使用"></a>Ptunnel的使用</h3><p><strong>安装需要的依赖包并编译Ptunnel</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># yum install libpcap libpcap-devel flex bison -y</span><br><span class="line"># tar xf PingTunnel-0.72.tar.gz</span><br><span class="line"># cd PingTunnel</span><br><span class="line"># make</span><br></pre></td></tr></table></figure>
+<p><strong>Ptunnel常用的参数</strong>  </p>
+<ul>
+<li>-p    指定跳板机的IP  </li>
+<li>-l    指定转发本地监听的端口  </li>
+<li>-da    指定最终要访问的目标主机  </li>
+<li>-dp    指定最终要访问目标主机的端口<br>PS：跳板机要有访问目标主机的权限！  </li>
+</ul>
+<p>在hack机器上开启ptunnel隧道监听<br><img src="https://github.com/rosetscmite/tu/blob/master/11/11-2.png?raw=true" alt="image"><br>在client1连接跳板机20.20.20.101，访问client本地的8000端口，跳转到跳板机本地的22端口<br><img src="https://github.com/rosetscmite/tu/blob/master/11/11-3.png?raw=true" alt="image"><br>查看本地已经监听8000端口<br><img src="https://github.com/rosetscmite/tu/blob/master/11/11-4.png?raw=true" alt="image"><br>client1连接本地8000端口即可通过ICMP隧道连接到跳板机的22端口<br><img src="https://github.com/rosetscmite/tu/blob/master/11/11-5.png?raw=true" alt="image"><br>也可以通过ssh over icmp隧道，建立socks代理访问外网<br><img src="https://github.com/rosetscmite/tu/blob/master/11/11-6.png?raw=true" alt="image">  </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/16/基于bro的安全场景研究测试-DNS隧道/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1709,167 +1864,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/18/三体读后感/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="L.Lawliet">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/L.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="L's tale">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/18/三体读后感/" itemprop="url">三体读后感</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-18T22:57:28+08:00">
-                2018-04-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/读后感/" itemprop="url" rel="index">
-                    <span itemprop="name">读后感</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>&#160; &#160; &#160; &#160;4月17日凌晨我读完了三体三部曲，这部小说给我带来的回味很多，我从以前就是一个喜欢宏观层面的人，所以比较善于找方法，对处理细节方面就不太拿手。小说中构建的世界观让我沉浸其中无法自拔，仿佛自己从头到尾经历了一边。</p>
-<h3 id="《三体1：地球往事》"><a href="#《三体1：地球往事》" class="headerlink" title="《三体1：地球往事》"></a>《三体1：地球往事》</h3><p><img src="https://github.com/rosetscmite/tu/blob/master/1/1-1.jpg?raw=true" alt="image"></p>
-<p>&#160; &#160; &#160; &#160;其实早在上学时期我就尝试阅读过三体这部小说，那个时候知道这是一部关于科幻类的但开头却一直说文革时期的事，那时的我读不懂没多久就放弃了，再次阅读的时候，被书中开头描述的文革时期彻底震撼。子斗父，徒斗师，第一步的女主角叶文洁的父亲深受文革时期的迫害，死在了她的面前，后来妹妹死于武斗，被下方到林场后又被自以为是好友白暮霖陷害，直到开启红岸工程后很久才被平反，叶文洁彻底对人类失去了信心。<br>　　叶文洁全身心投入研究后，发现宇宙辐射背景和太阳是个信号放大器，红岸工程对宇宙发出了第一声呼喊，在善良的三体监控员的警告下，叶文洁还是毫不犹豫回复了三体世界的信息，幻想三体世界来拯救邪恶的人类。但导致太阳系的方向和距离暴露，同时生活在水生火热中的三体世界开启了对太阳系征程，拉开了人类与三体世界400年斗争的序幕。</p>
-<h3 id="《三体2：黑暗森林》"><a href="#《三体2：黑暗森林》" class="headerlink" title="《三体2：黑暗森林》"></a>《三体2：黑暗森林》</h3><p><img src="https://github.com/rosetscmite/tu/blob/master/1/1-2.jpeg?raw=true" alt="image"></p>
-<p>&#160; &#160; &#160; &#160;黑暗森林我觉得是三部曲中最精彩的部分，在叶文洁被捕前跟罗辑有一次短暂的对话。对话的内容以宇宙社会学引起了罗辑的兴趣,叙述了宇宙社会学的基本雏形。三体率先派出智子封锁人类科技，在三体舰队到来前实时监控着地球的一举一动。联合国意识到任何计划都是透明的，在智子无处不在、无所不知的情况下只有人大脑中的思想不会被暴露，便开启了面壁计划。罗辑是四位面壁者中的一个，也是三体世界觉得最危险的人。为了针对面壁计划，地球三体组织也派出三位破壁者。唯独罗辑自己是自己的破壁者，三体世界知道他脑中的思想有更多人知道的话，对三体世界是危险的。面壁者与破壁者博弈的情节是我觉得书中最精彩的部分，每一个面壁者的思想和计划藏得都如此之深，却被破壁者一一破解，最后只留下了罗辑一人。<br>&#160; &#160; &#160; &#160;罗辑慢慢的参悟叶文洁所说的话，对百光年外的一颗恒星发起了“诅咒”，200年后检测到那个恒星系毁灭的画面，当时的联合舰队组织没有想到罗辑200年前的诅咒真的生效了。罗辑也通过实验证明了自己的想法，由叶文洁提供的宇宙社会学雏形推理出了–黑暗森林法则。<br>&#160; &#160; &#160; &#160;当三体舰队抵达太阳系时，罗辑站在杨冬和叶文洁的墓前对着智子发出怒吼，若三体舰队再敢向前航行一步便广播三体母星的坐标，这是一种同归于尽的行为，因为太阳系离三体母星仅有4光年的距离。罗辑成功建立黑暗森林威慑，三体舰队退出太阳系外数百个天文单位。</p>
-<h4 id="两个基本公理："><a href="#两个基本公理：" class="headerlink" title="两个基本公理："></a>两个基本公理：</h4><ol>
-<li>生存是文明的第一需要</li>
-<li>文明不断增长和扩张，但宇宙中的物质总量保持不变<h4 id="猜疑链和技术爆炸"><a href="#猜疑链和技术爆炸" class="headerlink" title="猜疑链和技术爆炸"></a>猜疑链和技术爆炸</h4>“文明间的善意和恶意。善和恶这类字眼放到科学中是不严谨的，所以需要对它们的含义加以限制：善意就是指不主动攻击和消灭其他文明，恶意则相反。这是最低的善意了吧。” ——刘慈欣《三体2：黑暗森林》<br>一个文明不能判断另一个文明是善文明还是恶文明<br>一个文明不能判断另一个文明认为本文明是善文明还是恶文明<br>一个文明不能判断另一个文明是否会对本文明发起攻击<br>一个文明无法判断另一个文明对自己是善意或恶意的<br>一个文明无法判断另一个文明认为自己是善意或恶意的<br>一个文明无法判断另一个文明判断自己对她是善意或恶意的<br>……  </li>
-</ol>
-<p><strong>猜疑链性质：</strong></p>
-<ol>
-<li>由于距离间隔以及文化、物种差异，宇宙文明间猜疑链一经形成即坚不可摧。</li>
-<li>猜疑链导致文明无法互相判断彼此之间的善恶并最终驱使两方相互敌视。</li>
-<li>猜疑链的结果与两文明具体道德取向无关。  </li>
-</ol>
-<p><strong>技术爆炸：</strong></p>
-<p>文明进步的速度和加速度不见得是一致的，弱小的文明很可能在短时间内超越强大的文明。可能由内因或者外因（例如宇宙文明的交流）引发。</p>
-<h3 id="《三体3：死神永生》"><a href="#《三体3：死神永生》" class="headerlink" title="《三体3：死神永生》"></a>《三体3：死神永生》</h3><p><img src="https://github.com/rosetscmite/tu/blob/master/1/1-3.png?raw=true" alt="image"></p>
-<p>&#160; &#160; &#160; &#160;本以为三体3会像其他小说一样越写越烂坑越多，因为相较之下黑暗森林已经很完美了。《死神永生》中星际战争、光速飞船、光粒打击、维度武器这些以前从未了解过的事物拓展了我的视野，尽管有些也是作者幻想出来的甚至没有科学依据，依然给了我很大的震撼。这和黑暗森林人与人之间的斗争描写是不同的，真正的大场面，大手笔。<br>&#160; &#160; &#160; &#160;身患绝症的云天明买下一颗星星送给暗恋着的大学同学程心，而程心因参与（PIA）向三体舰队发射探测器的工作，却想让航天专业背景的他放弃安乐死，作为被执行人将大脑捐献给阶梯计划。云天明的大脑被送往了太空，为了阶梯计划的顺利进行，程心进入冬眠等待云天明的消息。冬眠苏醒后的程心继任罗辑被推举为下一任执剑人，而三体文明瞄准交接完成后，对人类世界发起攻击，三体水滴从太阳系外到达地球只需要10分钟的时间。程心刚成为执剑人几分钟就要面临抉择人类和三体世界的命运，如果她按下按钮两个世界都将面临黑暗森林打击，如果不按人类则会沦陷，最后她还是败了。水滴进入地球直接把宇宙广播站全部毁灭，使人类失去建立黑暗森林威胁的能力，最终人类被奴役，大部分人类集中移民到澳大利亚。<br>&#160; &#160; &#160; &#160;除了地球上的广播站，万有引力号是恒星级战舰中唯一一艘拥有广播能力的宇宙飞船，在警示下继续逃离的“蓝色空间”号，受到具有发射引力波能力的“万有引力”号与两个同行的“水滴”追击，其上的人员进入四维空间摧毁水滴并占领了“万有引力”号，启动引力波广播向宇宙公布了三体星系的坐标。“万有引力”号代替程心完成了执剑人的任务，三体世界收到广播信号后，开始逃离太阳系，不久后三体星系遭到了毁灭。<br>&#160; &#160; &#160; &#160;相距三体星系仅四光年的太阳系，思考着如何应对随时会到来的针对地球的打击行动，这个时候云天明约会程心见面，给她带来了三个故事。从故事中解得了曲率驱动光速飞船的研究方向，但人们以为黑暗森林打击手法只有光粒一种，便放弃了研究光速飞船，开启掩体计划。最后歌者发现太阳系特殊的运行体制后，担心光粒打击无法彻底摧毁太阳系，便使用更高级的维度打击武器“二向箔”。在维度打击手段下，太阳系从三维空间被压成二维空间，只有光速飞船可以脱离其蔓延速度，但人类却放弃了这条路，导致了太阳系人类文明的灭亡。</p>
-<h3 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h3><p>&#160; &#160; &#160; &#160;我也像作者一样坚信着宇宙中存在着千万文明，文明间的战争也早已开始。抬头看着夜空，那一颗明亮闪烁的星星，可能也是文明闪烁的最后光辉。人类文明仅是时间长河中的一小段，真的想亲眼看看未来的世界。<br><img src="https://github.com/rosetscmite/tu/blob/master/1/1-4.png?raw=true" alt="image"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1924,7 +1918,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
