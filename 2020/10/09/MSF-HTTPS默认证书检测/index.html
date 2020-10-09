@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="metasploit,威胁检测," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="MSF-HTTPS默认证书检测前言进行过MSF的默认payload专项测试后，其他明文传输的payload方式或多或少都可以找到相关的流量特征，而HTTPS走的是标准TLS格式，数据完全加密，这样想检测HTTPS的payload难度就非常的大了。但是在TLS传输加密数据之前的证书交换协商过程却是明文传输的，我们可以从这部分入手来尝试检测MSF的HTTPS证书。 代码分析经过生成多个payload样">
+<meta name="keywords" content="metasploit,威胁检测">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MSF-HTTPS默认证书检测">
+<meta property="og:url" content="http://yoursite.com/2020/10/09/MSF-HTTPS默认证书检测/index.html">
+<meta property="og:site_name" content="L&#39;s tale">
+<meta property="og:description" content="MSF-HTTPS默认证书检测前言进行过MSF的默认payload专项测试后，其他明文传输的payload方式或多或少都可以找到相关的流量特征，而HTTPS走的是标准TLS格式，数据完全加密，这样想检测HTTPS的payload难度就非常的大了。但是在TLS传输加密数据之前的证书交换协商过程却是明文传输的，我们可以从这部分入手来尝试检测MSF的HTTPS证书。 代码分析经过生成多个payload样">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://github.com/rosetscmite/tu/blob/master/20/image-20200701104200259.png?raw=true">
+<meta property="og:updated_time" content="2020-10-09T14:55:35.562Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MSF-HTTPS默认证书检测">
+<meta name="twitter:description" content="MSF-HTTPS默认证书检测前言进行过MSF的默认payload专项测试后，其他明文传输的payload方式或多或少都可以找到相关的流量特征，而HTTPS走的是标准TLS格式，数据完全加密，这样想检测HTTPS的payload难度就非常的大了。但是在TLS传输加密数据之前的证书交换协商过程却是明文传输的，我们可以从这部分入手来尝试检测MSF的HTTPS证书。 代码分析经过生成多个payload样">
+<meta name="twitter:image" content="https://github.com/rosetscmite/tu/blob/master/20/image-20200701104200259.png?raw=true">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/10/09/MSF-HTTPS默认证书检测/"/>
+
+
+
+
+
+  <title>MSF-HTTPS默认证书检测 | L's tale</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">L's tale</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/09/MSF-HTTPS默认证书检测/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MSF-HTTPS默认证书检测</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-10-09T22:48:55+08:00">
+                2020-10-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/安全建设/" itemprop="url" rel="index">
+                    <span itemprop="name">安全建设</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="MSF-HTTPS默认证书检测"><a href="#MSF-HTTPS默认证书检测" class="headerlink" title="MSF-HTTPS默认证书检测"></a>MSF-HTTPS默认证书检测</h1><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>进行过MSF的默认payload专项测试后，其他明文传输的payload方式或多或少都可以找到相关的流量特征，而HTTPS走的是标准TLS格式，数据完全加密，这样想检测HTTPS的payload难度就非常的大了。但是在TLS传输加密数据之前的证书交换协商过程却是明文传输的，我们可以从这部分入手来尝试检测MSF的HTTPS证书。</p>
+<h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>经过生成多个payload样本后发现，样本的证书貌似是随机生成的，这样我们就需要去后台查看MSF的源代码找到证书的生成逻辑。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">06/09/2020-15:35:55.502904 10.50.1.183:52691 -&gt; 10.50.1.175:8888  TLS: Subject='C=US, ST=OH, O=Bosco-Kovacek, OU=multi.byte, CN=bosco.kovacek.org/emailAddress=multi.byte@bosco.kovacek.org' Issuerdn='C=US, ST=OH, O=Bosco-Kovacek, OU=multi.byte, CN=bosco.kovacek.org/emailAddress=multi.byte@bosco.kovacek.org'</span><br><span class="line">06/12/2020-17:22:46.618026 10.50.1.183:58063 -&gt; 10.50.1.175:8888  TLS: Subject='C=US, ST=NC, O=McKenzie, Cummerata and Vandervort, OU=input, CN=mckenzie.cummerata.vervort.net/emailAddress=input@mckenzie.cummerata.vervort.net' Issuerdn='C=US, ST=NC, O=McKenzie, Cummerata and Vandervort, OU=input, CN=mckenzie.cummerata.vervort.net/emailAddress=input@mckenzie.cummerata.vervort.net'</span><br><span class="line">06/12/2020-17:22:46.979553 10.50.1.183:58064 -&gt; 10.50.1.175:8888  TLS: Subject='C=US, ST=NC, O=McKenzie, Cummerata and Vandervort, OU=input, CN=mckenzie.cummerata.vervort.net/emailAddress=input@mckenzie.cummerata.vervort.net' Issuerdn='C=US, ST=NC, O=McKenzie, Cummerata and Vandervort, OU=input, CN=mckenzie.cummerata.vervort.net/emailAddress=input@mckenzie.cummerata.vervort.net'</span><br></pre></td></tr></table></figure>
+<p>MSF证书生成代码在文件<code>lib/msf/core/cert_provider.rb</code>里，代码如下：通过调用<a href="https://github.com/faker-ruby/faker/tree/master/lib/locales/en" target="_blank" rel="noopener">faker</a>库的Address.state_abbr、Address.city、Company.name、Internet.domain_suffix等list，从中随机选择相关的词汇生成证书。</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/20/image-20200701104200259.png?raw=true" alt="image-20200701104200259"></p>
+<h3 id="检测方案"><a href="#检测方案" class="headerlink" title="检测方案"></a>检测方案</h3><p>在了解证书的生成过程后，我们使用逆向思维同时也利用faker的list，将证书Subject进行拆分，逐个匹配faker list中的字典，查看是否均存在于字典中，若都存在则判断为MSF HTTPS SSL证书。</p>
+<p>suricata lua脚本如下：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">suffix_list = &#123;<span class="string">"Inc"</span>, <span class="string">"and Sons"</span>, <span class="string">"LLC"</span>, <span class="string">"Group"</span>&#125;</span><br><span class="line"></span><br><span class="line">ou_list = &#123;<span class="string">"auxiliary"</span>, <span class="string">"primary"</span>, <span class="string">"back.end"</span>, <span class="string">"digital"</span>, <span class="string">"open.source"</span>, <span class="string">"virtual"</span>, <span class="string">"cross.platform"</span>, <span class="string">"redundant"</span>, <span class="string">"online"</span>, <span class="string">"haptic"</span>, <span class="string">"multi.byte"</span>, <span class="string">"bluetooth"</span>, <span class="string">"wireless"</span>, <span class="string">"1080p"</span>, <span class="string">"neural"</span>, <span class="string">"optical"</span>, <span class="string">"solid.state"</span>, <span class="string">"mobile"</span>, <span class="string">"driver"</span>, <span class="string">"protocol"</span>, <span class="string">"bandwidth"</span>, <span class="string">"panel"</span>, <span class="string">"microchip"</span>, <span class="string">"program"</span>, <span class="string">"port"</span>, <span class="string">"card"</span>, <span class="string">"array"</span>, <span class="string">"interface"</span>, <span class="string">"system"</span>, <span class="string">"sensor"</span>, <span class="string">"firewall"</span>, <span class="string">"hard.drive"</span>, <span class="string">"pixel"</span>, <span class="string">"alarm"</span>, <span class="string">"feed"</span>, <span class="string">"monitor"</span>, <span class="string">"application"</span>, <span class="string">"transmitter"</span>, <span class="string">"bus"</span>, <span class="string">"circuit"</span>, <span class="string">"capacitor"</span>, <span class="string">"matrix"</span>, <span class="string">"back.up"</span>, <span class="string">"bypass"</span>, <span class="string">"hack"</span>, <span class="string">"override"</span>, <span class="string">"compress"</span>, <span class="string">"copy"</span>, <span class="string">"navigate"</span>, <span class="string">"index"</span>, <span class="string">"connect"</span>, <span class="string">"generate"</span>, <span class="string">"quantify"</span>, <span class="string">"calculate"</span>, <span class="string">"synthesize"</span>, <span class="string">"input"</span>, <span class="string">"transmit"</span>, <span class="string">"program"</span>, <span class="string">"reboot"</span>, <span class="string">"parse"</span>&#125;</span><br><span class="line"></span><br><span class="line">last_name_list = &#123;<span class="string">"Abbott"</span>, <span class="string">"Abernathy"</span>, <span class="string">"Abshire"</span>, <span class="string">"Adams"</span>, <span class="string">"Altenwerth"</span>, <span class="string">"Anderson"</span>, <span class="string">"Ankunding"</span>, <span class="string">"Armstrong"</span>, <span class="string">"Auer"</span>, <span class="string">"Aufderhar"</span>, <span class="string">"Bahringer"</span>, <span class="string">"Bailey"</span>, <span class="string">"Balistreri"</span>, <span class="string">"Barrows"</span>, <span class="string">"Bartell"</span>, <span class="string">"Bartoletti"</span>, <span class="string">"Barton"</span>, <span class="string">"Bashirian"</span>, <span class="string">"Batz"</span>, <span class="string">"Bauch"</span>, <span class="string">"Baumbach"</span>, <span class="string">"Bayer"</span>, <span class="string">"Beahan"</span>, <span class="string">"Beatty"</span>, <span class="string">"Bechtelar"</span>, <span class="string">"Becker"</span>, <span class="string">"Bednar"</span>, <span class="string">"Beer"</span>, <span class="string">"Beier"</span>, <span class="string">"Berge"</span>, <span class="string">"Bergnaum"</span>, <span class="string">"Bergstrom"</span>, <span class="string">"Bernhard"</span>, <span class="string">"Bernier"</span>, <span class="string">"Bins"</span>, <span class="string">"Blanda"</span>, <span class="string">"Blick"</span>, <span class="string">"Block"</span>, <span class="string">"Bode"</span>, <span class="string">"Boehm"</span>, <span class="string">"Bogan"</span>, <span class="string">"Bogisich"</span>, <span class="string">"Borer"</span>, <span class="string">"Bosco"</span>, <span class="string">"Botsford"</span>, <span class="string">"Boyer"</span>, <span class="string">"Boyle"</span>, <span class="string">"Bradtke"</span>, <span class="string">"Brakus"</span>, <span class="string">"Braun"</span>, <span class="string">"Breitenberg"</span>, <span class="string">"Brekke"</span>, <span class="string">"Brown"</span>, <span class="string">"Bruen"</span>, <span class="string">"Buckridge"</span>, <span class="string">"Carroll"</span>, <span class="string">"Carter"</span>, <span class="string">"Cartwright"</span>, <span class="string">"Casper"</span>, <span class="string">"Cassin"</span>, <span class="string">"Champlin"</span>, <span class="string">"Christiansen"</span>, <span class="string">"Cole"</span>, <span class="string">"Collier"</span>, <span class="string">"Collins"</span>, <span class="string">"Conn"</span>, <span class="string">"Connelly"</span>, <span class="string">"Conroy"</span>, <span class="string">"Considine"</span>, <span class="string">"Corkery"</span>, <span class="string">"Cormier"</span>, <span class="string">"Corwin"</span>, <span class="string">"Cremin"</span>, <span class="string">"Crist"</span>, <span class="string">"Crona"</span>, <span class="string">"Cronin"</span>, <span class="string">"Crooks"</span>, <span class="string">"Cruickshank"</span>, <span class="string">"Cummerata"</span>, <span class="string">"Cummings"</span>, <span class="string">"Dach"</span>, <span class="string">"D'Amore"</span>, <span class="string">"Daniel"</span>, <span class="string">"Dare"</span>, <span class="string">"Daugherty"</span>, <span class="string">"Davis"</span>, <span class="string">"Deckow"</span>, <span class="string">"Denesik"</span>, <span class="string">"Dibbert"</span>, <span class="string">"Dickens"</span>, <span class="string">"Dicki"</span>, <span class="string">"Dickinson"</span>, <span class="string">"Dietrich"</span>, <span class="string">"Donnelly"</span>, <span class="string">"Dooley"</span>, <span class="string">"Douglas"</span>, <span class="string">"Doyle"</span>, <span class="string">"DuBuque"</span>, <span class="string">"Durgan"</span>, <span class="string">"Ebert"</span>, <span class="string">"Effertz"</span>, <span class="string">"Emard"</span>, <span class="string">"Emmerich"</span>, <span class="string">"Erdman"</span>, <span class="string">"Ernser"</span>, <span class="string">"Fadel"</span>, <span class="string">"Fahey"</span>, <span class="string">"Farrell"</span>, <span class="string">"Fay"</span>, <span class="string">"Feeney"</span>, <span class="string">"Feest"</span>, <span class="string">"Feil"</span>, <span class="string">"Ferry"</span>, <span class="string">"Fisher"</span>, <span class="string">"Flatley"</span>, <span class="string">"Frami"</span>, <span class="string">"Franecki"</span>, <span class="string">"Friesen"</span>, <span class="string">"Fritsch"</span>, <span class="string">"Funk"</span>, <span class="string">"Gaylord"</span>, <span class="string">"Gerhold"</span>, <span class="string">"Gerlach"</span>, <span class="string">"Gibson"</span>, <span class="string">"Gislason"</span>, <span class="string">"Gleason"</span>, <span class="string">"Gleichner"</span>, <span class="string">"Glover"</span>, <span class="string">"Goldner"</span>, <span class="string">"Goodwin"</span>, <span class="string">"Gorczany"</span>, <span class="string">"Gottlieb"</span>, <span class="string">"Goyette"</span>, <span class="string">"Grady"</span>, <span class="string">"Graham"</span>, <span class="string">"Grant"</span>, <span class="string">"Green"</span>, <span class="string">"Greenfelder"</span>, <span class="string">"Greenholt"</span>, <span class="string">"Grimes"</span>, <span class="string">"Gulgowski"</span>, <span class="string">"Gusikowski"</span>, <span class="string">"Gutkowski"</span>, <span class="string">"Gutmann"</span>, <span class="string">"Haag"</span>, <span class="string">"Hackett"</span>, <span class="string">"Hagenes"</span>, <span class="string">"Hahn"</span>, <span class="string">"Haley"</span>, <span class="string">"Halvorson"</span>, <span class="string">"Hamill"</span>, <span class="string">"Hammes"</span>, <span class="string">"Hand"</span>, <span class="string">"Hane"</span>, <span class="string">"Hansen"</span>, <span class="string">"Harber"</span>, <span class="string">"Harris"</span>, <span class="string">"Hartmann"</span>, <span class="string">"Harvey"</span>, <span class="string">"Hauck"</span>, <span class="string">"Hayes"</span>, <span class="string">"Heaney"</span>, <span class="string">"Heathcote"</span>, <span class="string">"Hegmann"</span>, <span class="string">"Heidenreich"</span>, <span class="string">"Heller"</span>, <span class="string">"Herman"</span>, <span class="string">"Hermann"</span>, <span class="string">"Hermiston"</span>, <span class="string">"Herzog"</span>, <span class="string">"Hessel"</span>, <span class="string">"Hettinger"</span>, <span class="string">"Hickle"</span>, <span class="string">"Hilll"</span>, <span class="string">"Hills"</span>, <span class="string">"Hilpert"</span>, <span class="string">"Hintz"</span>, <span class="string">"Hirthe"</span>, <span class="string">"Hodkiewicz"</span>, <span class="string">"Hoeger"</span>, <span class="string">"Homenick"</span>, <span class="string">"Hoppe"</span>, <span class="string">"Howe"</span>, <span class="string">"Howell"</span>, <span class="string">"Hudson"</span>, <span class="string">"Huel"</span>, <span class="string">"Huels"</span>, <span class="string">"Hyatt"</span>, <span class="string">"Jacobi"</span>, <span class="string">"Jacobs"</span>, <span class="string">"Jacobson"</span>, <span class="string">"Jakubowski"</span>, <span class="string">"Jaskolski"</span>, <span class="string">"Jast"</span>, <span class="string">"Jenkins"</span>, <span class="string">"Jerde"</span>, <span class="string">"Johns"</span>, <span class="string">"Johnson"</span>, <span class="string">"Johnston"</span>, <span class="string">"Jones"</span>, <span class="string">"Kassulke"</span>, <span class="string">"Kautzer"</span>, <span class="string">"Keebler"</span>, <span class="string">"Keeling"</span>, <span class="string">"Kemmer"</span>, <span class="string">"Kerluke"</span>, <span class="string">"Kertzmann"</span>, <span class="string">"Kessler"</span>, <span class="string">"Kiehn"</span>, <span class="string">"Kihn"</span>, <span class="string">"Kilback"</span>, <span class="string">"King"</span>, <span class="string">"Kirlin"</span>, <span class="string">"Klein"</span>, <span class="string">"Kling"</span>, <span class="string">"Klocko"</span>, <span class="string">"Koch"</span>, <span class="string">"Koelpin"</span>, <span class="string">"Koepp"</span>, <span class="string">"Kohler"</span>, <span class="string">"Konopelski"</span>, <span class="string">"Koss"</span>, <span class="string">"Kovacek"</span>, <span class="string">"Kozey"</span>, <span class="string">"Krajcik"</span>, <span class="string">"Kreiger"</span>, <span class="string">"Kris"</span>, <span class="string">"Kshlerin"</span>, <span class="string">"Kub"</span>, <span class="string">"Kuhic"</span>, <span class="string">"Kuhlman"</span>, <span class="string">"Kuhn"</span>, <span class="string">"Kulas"</span>, <span class="string">"Kunde"</span>, <span class="string">"Kunze"</span>, <span class="string">"Kuphal"</span>, <span class="string">"Kutch"</span>, <span class="string">"Kuvalis"</span>, <span class="string">"Labadie"</span>, <span class="string">"Lakin"</span>, <span class="string">"Lang"</span>, <span class="string">"Langosh"</span>, <span class="string">"Langworth"</span>, <span class="string">"Larkin"</span>, <span class="string">"Larson"</span>, <span class="string">"Leannon"</span>, <span class="string">"Lebsack"</span>, <span class="string">"Ledner"</span>, <span class="string">"Leffler"</span>, <span class="string">"Legros"</span>, <span class="string">"Lehner"</span>, <span class="string">"Lemke"</span>, <span class="string">"Lesch"</span>, <span class="string">"Leuschke"</span>, <span class="string">"Lind"</span>, <span class="string">"Lindgren"</span>, <span class="string">"Littel"</span>, <span class="string">"Little"</span>, <span class="string">"Lockman"</span>, <span class="string">"Lowe"</span>, <span class="string">"Lubowitz"</span>, <span class="string">"Lueilwitz"</span>, <span class="string">"Luettgen"</span>, <span class="string">"Lynch"</span>, <span class="string">"Macejkovic"</span>, <span class="string">"MacGyver"</span>, <span class="string">"Maggio"</span>, <span class="string">"Mann"</span>, <span class="string">"Mante"</span>, <span class="string">"Marks"</span>, <span class="string">"Marquardt"</span>, <span class="string">"Marvin"</span>, <span class="string">"Mayer"</span>, <span class="string">"Mayert"</span>, <span class="string">"McClure"</span>, <span class="string">"McCullough"</span>, <span class="string">"McDermott"</span>, <span class="string">"McGlynn"</span>, <span class="string">"McKenzie"</span>, <span class="string">"McLaughlin"</span>, <span class="string">"Medhurst"</span>, <span class="string">"Mertz"</span>, <span class="string">"Metz"</span>, <span class="string">"Miller"</span>, <span class="string">"Mills"</span>, <span class="string">"Mitchell"</span>, <span class="string">"Moen"</span>, <span class="string">"Mohr"</span>, <span class="string">"Monahan"</span>, <span class="string">"Moore"</span>, <span class="string">"Morar"</span>, <span class="string">"Morissette"</span>, <span class="string">"Mosciski"</span>, <span class="string">"Mraz"</span>, <span class="string">"Mueller"</span>, <span class="string">"Muller"</span>, <span class="string">"Murazik"</span>, <span class="string">"Murphy"</span>, <span class="string">"Murray"</span>, <span class="string">"Nader"</span>, <span class="string">"Nicolas"</span>, <span class="string">"Nienow"</span>, <span class="string">"Nikolaus"</span>, <span class="string">"Nitzsche"</span>, <span class="string">"Nolan"</span>, <span class="string">"Oberbrunner"</span>, <span class="string">"O'Connell"</span>, <span class="string">"O'Conner"</span>, <span class="string">"O'Hara"</span>, <span class="string">"O'Keefe"</span>, <span class="string">"O'Kon"</span>, <span class="string">"Okuneva"</span>, <span class="string">"Olson"</span>, <span class="string">"Ondricka"</span>, <span class="string">"O'Reilly"</span>, <span class="string">"Orn"</span>, <span class="string">"Ortiz"</span>, <span class="string">"Osinski"</span>, <span class="string">"Pacocha"</span>, <span class="string">"Padberg"</span>, <span class="string">"Pagac"</span>, <span class="string">"Parisian"</span>, <span class="string">"Parker"</span>, <span class="string">"Paucek"</span>, <span class="string">"Pfannerstill"</span>, <span class="string">"Pfeffer"</span>, <span class="string">"Pollich"</span>, <span class="string">"Pouros"</span>, <span class="string">"Powlowski"</span>, <span class="string">"Predovic"</span>, <span class="string">"Price"</span>, <span class="string">"Prohaska"</span>, <span class="string">"Prosacco"</span>, <span class="string">"Purdy"</span>, <span class="string">"Quigley"</span>, <span class="string">"Quitzon"</span>, <span class="string">"Rath"</span>, <span class="string">"Ratke"</span>, <span class="string">"Rau"</span>, <span class="string">"Raynor"</span>, <span class="string">"Reichel"</span>, <span class="string">"Reichert"</span>, <span class="string">"Reilly"</span>, <span class="string">"Reinger"</span>, <span class="string">"Rempel"</span>, <span class="string">"Renner"</span>, <span class="string">"Reynolds"</span>, <span class="string">"Rice"</span>, <span class="string">"Rippin"</span>, <span class="string">"Ritchie"</span>, <span class="string">"Robel"</span>, <span class="string">"Roberts"</span>, <span class="string">"Rodriguez"</span>, <span class="string">"Rogahn"</span>, <span class="string">"Rohan"</span>, <span class="string">"Rolfson"</span>, <span class="string">"Romaguera"</span>, <span class="string">"Roob"</span>, <span class="string">"Rosenbaum"</span>, <span class="string">"Rowe"</span>, <span class="string">"Ruecker"</span>, <span class="string">"Runolfsdottir"</span>, <span class="string">"Runolfsson"</span>, <span class="string">"Runte"</span>, <span class="string">"Russel"</span>, <span class="string">"Rutherford"</span>, <span class="string">"Ryan"</span>, <span class="string">"Sanford"</span>, <span class="string">"Satterfield"</span>, <span class="string">"Sauer"</span>, <span class="string">"Sawayn"</span>, <span class="string">"Schaden"</span>, <span class="string">"Schaefer"</span>, <span class="string">"Schamberger"</span>, <span class="string">"Schiller"</span>, <span class="string">"Schimmel"</span>, <span class="string">"Schinner"</span>, <span class="string">"Schmeler"</span>, <span class="string">"Schmidt"</span>, <span class="string">"Schmitt"</span>, <span class="string">"Schneider"</span>, <span class="string">"Schoen"</span>, <span class="string">"Schowalter"</span>, <span class="string">"Schroeder"</span>, <span class="string">"Schulist"</span>, <span class="string">"Schultz"</span>, <span class="string">"Schumm"</span>, <span class="string">"Schuppe"</span>, <span class="string">"Schuster"</span>, <span class="string">"Senger"</span>, <span class="string">"Shanahan"</span>, <span class="string">"Shields"</span>, <span class="string">"Simonis"</span>, <span class="string">"Sipes"</span>, <span class="string">"Skiles"</span>, <span class="string">"Smith"</span>, <span class="string">"Smitham"</span>, <span class="string">"Spencer"</span>, <span class="string">"Spinka"</span>, <span class="string">"Sporer"</span>, <span class="string">"Stamm"</span>, <span class="string">"Stanton"</span>, <span class="string">"Stark"</span>, <span class="string">"Stehr"</span>, <span class="string">"Steuber"</span>, <span class="string">"Stiedemann"</span>, <span class="string">"Stokes"</span>, <span class="string">"Stoltenberg"</span>, <span class="string">"Stracke"</span>, <span class="string">"Streich"</span>, <span class="string">"Stroman"</span>, <span class="string">"Strosin"</span>, <span class="string">"Swaniawski"</span>, <span class="string">"Swift"</span>, <span class="string">"Terry"</span>, <span class="string">"Thiel"</span>, <span class="string">"Thompson"</span>, <span class="string">"Tillman"</span>, <span class="string">"Torp"</span>, <span class="string">"Torphy"</span>, <span class="string">"Towne"</span>, <span class="string">"Toy"</span>, <span class="string">"Trantow"</span>, <span class="string">"Tremblay"</span>, <span class="string">"Treutel"</span>, <span class="string">"Tromp"</span>, <span class="string">"Turcotte"</span>, <span class="string">"Turner"</span>, <span class="string">"Ullrich"</span>, <span class="string">"Upton"</span>, <span class="string">"Vandervort"</span>, <span class="string">"Veum"</span>, <span class="string">"Volkman"</span>, <span class="string">"Von"</span>, <span class="string">"VonRueden"</span>, <span class="string">"Waelchi"</span>, <span class="string">"Walker"</span>, <span class="string">"Walsh"</span>, <span class="string">"Walter"</span>, <span class="string">"Ward"</span>, <span class="string">"Waters"</span>, <span class="string">"Watsica"</span>, <span class="string">"Weber"</span>, <span class="string">"Wehner"</span>, <span class="string">"Weimann"</span>, <span class="string">"Weissnat"</span>, <span class="string">"Welch"</span>, <span class="string">"West"</span>, <span class="string">"White"</span>, <span class="string">"Wiegand"</span>, <span class="string">"Wilderman"</span>, <span class="string">"Wilkinson"</span>, <span class="string">"Will"</span>, <span class="string">"Williamson"</span>, <span class="string">"Willms"</span>, <span class="string">"Windler"</span>, <span class="string">"Wintheiser"</span>, <span class="string">"Wisoky"</span>, <span class="string">"Wisozk"</span>, <span class="string">"Witting"</span>, <span class="string">"Wiza"</span>, <span class="string">"Wolf"</span>, <span class="string">"Wolff"</span>, <span class="string">"Wuckert"</span>, <span class="string">"Wunsch"</span>, <span class="string">"Wyman"</span>, <span class="string">"Yost"</span>, <span class="string">"Yundt"</span>, <span class="string">"Zboncak"</span>, <span class="string">"Zemlak"</span>, <span class="string">"Ziemann"</span>, <span class="string">"Zieme"</span>, <span class="string">"Zulauf"</span>&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">state_abbr_list = &#123;<span class="string">"AL"</span>, <span class="string">"AK"</span>, <span class="string">"AZ"</span>, <span class="string">"AR"</span>, <span class="string">"CA"</span>, <span class="string">"CO"</span>, <span class="string">"CT"</span>, <span class="string">"DE"</span>, <span class="string">"FL"</span>, <span class="string">"GA"</span>, <span class="string">"HI"</span>, <span class="string">"ID"</span>, <span class="string">"IL"</span>, <span class="string">"IN"</span>, <span class="string">"IA"</span>, <span class="string">"KS"</span>, <span class="string">"KY"</span>, <span class="string">"LA"</span>, <span class="string">"ME"</span>, <span class="string">"MD"</span>, <span class="string">"MA"</span>, <span class="string">"MI"</span>, <span class="string">"MN"</span>, <span class="string">"MS"</span>, <span class="string">"MO"</span>, <span class="string">"MT"</span>, <span class="string">"NE"</span>, <span class="string">"NV"</span>, <span class="string">"NH"</span>, <span class="string">"NJ"</span>, <span class="string">"NM"</span>, <span class="string">"NY"</span>, <span class="string">"NC"</span>, <span class="string">"ND"</span>, <span class="string">"OH"</span>, <span class="string">"OK"</span>, <span class="string">"OR"</span>, <span class="string">"PA"</span>, <span class="string">"RI"</span>, <span class="string">"SC"</span>, <span class="string">"SD"</span>, <span class="string">"TN"</span>, <span class="string">"TX"</span>, <span class="string">"UT"</span>, <span class="string">"VT"</span>, <span class="string">"VA"</span>, <span class="string">"WA"</span>, <span class="string">"WV"</span>, <span class="string">"WI"</span>, <span class="string">"WY"</span>&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">string.trim</span><span class="params">(s)</span></span></span><br><span class="line">    <span class="keyword">return</span> (<span class="built_in">string</span>.<span class="built_in">gsub</span>(s, <span class="string">"^%s*(.-)%s*$"</span>, <span class="string">"%1"</span>))</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span>  <span class="title">in_array</span><span class="params">(b,list)</span></span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> list <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>   </span><br><span class="line">    <span class="keyword">end</span> </span><br><span class="line">    <span class="keyword">if</span> list <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="built_in">ipairs</span>(list) <span class="keyword">do</span></span><br><span class="line">            <span class="keyword">if</span> v == b <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span> </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">init</span> <span class="params">(args)</span></span></span><br><span class="line">    <span class="keyword">local</span> needs = &#123;&#125;</span><br><span class="line">    needs[<span class="string">"buffer"</span>] = <span class="built_in">tostring</span>(<span class="literal">true</span>)</span><br><span class="line">    <span class="keyword">return</span> needs</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">match</span><span class="params">(args)</span></span></span><br><span class="line">    subject = <span class="built_in">tostring</span>(args[<span class="string">"buffer"</span>])</span><br><span class="line">    <span class="keyword">if</span> subject ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">	    <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(subject),<span class="string">"C=(%w+),%sST=(%w+),%sO=(.*),%sOU=(.*),%sCN="</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">	        C,ST,O,OU = <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(subject),<span class="string">"C=(%w+),%sST=(%w+),%sO=(.*),%sOU=(.*),%sCN="</span>)</span><br><span class="line">			<span class="keyword">if</span> C == <span class="string">"US"</span> <span class="keyword">then</span></span><br><span class="line">				<span class="comment">-- SCLogInfo("detection tls_c")</span></span><br><span class="line">				<span class="comment">-- SCLogInfo(ST)</span></span><br><span class="line">				<span class="keyword">if</span> in_array(ST, state_abbr_list) <span class="keyword">then</span></span><br><span class="line">					<span class="comment">-- SCLogInfo("detection tls_st")</span></span><br><span class="line">					<span class="keyword">if</span> in_array(OU, ou_list) <span class="keyword">then</span></span><br><span class="line">						<span class="comment">-- SCLogInfo("detection tls_ou\n")</span></span><br><span class="line">						<span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(O),<span class="string">"(%w+)%s+(%w+)"</span>) ~= <span class="string">'nil'</span> <span class="keyword">then</span></span><br><span class="line">							last_name, suffix = <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(O),<span class="string">"(%w+)%s+(%w+)"</span>)</span><br><span class="line">							<span class="keyword">if</span> in_array(suffix, suffix_list) <span class="keyword">then</span></span><br><span class="line">								<span class="keyword">if</span> in_array(last_name, last_name_list) <span class="keyword">then</span></span><br><span class="line">									<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">								<span class="keyword">end</span></span><br><span class="line">							<span class="keyword">end</span></span><br><span class="line">						<span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">						<span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(O),<span class="string">"(%w+)-(%w+)"</span>) ~= <span class="string">'nil'</span> <span class="keyword">then</span></span><br><span class="line">							last_name1, last_name2 = <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(O),<span class="string">"(%w+)-(%w+)"</span>)</span><br><span class="line">							<span class="keyword">if</span> in_array(last_name1, last_name_list) <span class="keyword">then</span></span><br><span class="line">								<span class="keyword">if</span> in_array(last_name2, last_name_list) <span class="keyword">then</span></span><br><span class="line">									<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">								<span class="keyword">end</span></span><br><span class="line">							<span class="keyword">end</span></span><br><span class="line">						<span class="keyword">end</span></span><br><span class="line">						<span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(O),<span class="string">"(%w+),%s+(%w+)%s+and%s+(%w+)"</span>) ~= <span class="string">'nil'</span> <span class="keyword">then</span></span><br><span class="line">							last_name1, last_name2, last_name3 = <span class="built_in">string</span>.<span class="built_in">match</span>(<span class="built_in">string</span>.trim(O),<span class="string">"(%w+),%s+(%w+)%s+and%s+(%w+)"</span>)</span><br><span class="line">							<span class="keyword">if</span> in_array(last_name1, last_name_list) <span class="keyword">then</span></span><br><span class="line">								<span class="keyword">if</span> in_array(last_name2, last_name_list) <span class="keyword">then</span></span><br><span class="line">									<span class="keyword">if</span> in_array(last_name3, last_name_list) <span class="keyword">then</span></span><br><span class="line">										<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">									<span class="keyword">end</span></span><br><span class="line">								<span class="keyword">end</span></span><br><span class="line">							<span class="keyword">end</span></span><br><span class="line">						<span class="keyword">end</span></span><br><span class="line">					<span class="keyword">end</span></span><br><span class="line">				<span class="keyword">end</span></span><br><span class="line">			<span class="keyword">end</span></span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>当然，只要换了证书，本方法就不适用，只能从其他方面入手检测了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/metasploit/" rel="tag"><i class="fa fa-tag"></i> metasploit</a>
+          
+            <a href="/tags/威胁检测/" rel="tag"><i class="fa fa-tag"></i> 威胁检测</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/05/Covenant源码调试分析-ExecuteStage/" rel="next" title="Covenant源码调试分析-ExecuteStage">
+                <i class="fa fa-chevron-left"></i> Covenant源码调试分析-ExecuteStage
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/L.jpg"
+                alt="L.Lawliet" />
+            
+              <p class="site-author-name" itemprop="name">L.Lawliet</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MSF-HTTPS默认证书检测"><span class="nav-number">1.</span> <span class="nav-text">MSF-HTTPS默认证书检测</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.0.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码分析"><span class="nav-number">1.0.2.</span> <span class="nav-text">代码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检测方案"><span class="nav-number">1.0.3.</span> <span class="nav-text">检测方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">1.0.4.</span> <span class="nav-text">结论</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">L.Lawliet</span>
+
+  
+</div>
+
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+-->
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
