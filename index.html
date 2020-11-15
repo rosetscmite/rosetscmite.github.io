@@ -259,6 +259,205 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/15/关于主动防御方案的一些思考/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="L.Lawliet">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/L.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L's tale">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/11/15/关于主动防御方案的一些思考/" itemprop="url">关于主动防御方案的一些思考</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-11-15T16:42:06+08:00">
+                2020-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>长期以来由于攻防信息不对称、攻防面不对称，被动防御的效果已经发展到了瓶颈，安全行业慢慢期望从防守角色转换成攻防对抗的角色，于是主动防御体系的概念就被提了出来。虽然国内的主动防御体系还不够标准和成熟，但个人依旧认为未来的防御体系一定会纳入许多主动防御战术。下图是我对主动防御的的一些思考，我将主动防御分成了三种能力：</p>
+<p>情报能力：获取可能未来会对自己构成威胁的能力</p>
+<p>感知能力：发起内外部正在对自己构成威胁的能力</p>
+<p>作战能力：对抗外内部正在对自己构成威胁的能力</p>
+<p><img src="https://github.com/rosetscmite/tu/blob/master/21/%E4%B8%BB%E5%8A%A8%E9%98%B2%E5%BE%A1.png?raw=true" alt="主动防御"></p>
+<h4 id="情报能力"><a href="#情报能力" class="headerlink" title="情报能力"></a>情报能力</h4><p>漏洞情报：监控各厂商、平台的漏洞通告，核对企业内部资产受影响范围，更新规则库，保证第一时间的感知能力。</p>
+<p>APT技战术：通过APT报告、Att&amp;Ck框架、NSS框架等获取 APT技术的更新，更新规则库，保证第一时间的感知能力。</p>
+<p>情报IOC：通过APT报告、各路情报源的IOC信息，核对企业是否遭受相关攻击，保证第一时间的感知能力。</p>
+<p>情报联盟：通过建立情报联盟共享情报信息，企业自己捕获的情报数据质量较高，同行业具备一定潜在共性，如针对行业的APT攻击。</p>
+<p>情报可以高效的驱动感知能力提升，但是目前的情报生态也存在一定问题，例如：</p>
+<ol>
+<li>情报IOC质量得不到保证，一是情报本身是错误的，二是情报的信息量太少，虽然情报有标准的标准的STIX格式，但在情报的高维度信息识别方面目前仍存在问题，无法给出情报相关的攻击者信息、攻击意图、攻击目标、攻击方法等信息</li>
+<li>情报联盟无法建立，一是由于情报IOC质量本身无法保证，导致无法确保联盟情报池质量，久而久之就失去了建立热情。二是由于国情容易构建资源壁垒。</li>
+</ol>
+<h4 id="感知能力"><a href="#感知能力" class="headerlink" title="感知能力"></a>感知能力</h4><p><strong>建设：</strong></p>
+<p>​    安全体系建设（事前）：通过建设完善的安全体系，增加空间复杂度，当黑客进入网络后在没有信息源的情况下，提高攻击技术成本，攻击时间成本。为事中识别、事后作战提供了更多的时间。常见的安全体系有：河防体系、塔防体系、纵深防御、零信任，可根据实际情况建立适合自己的安全体系。此类文章交流也是比较多的，可以多参考。</p>
+<p>​    识别（事中）：能够识别网络中的攻击者、受害者、攻击手段、攻击者基础设施、攻击意图、攻击能力等信息，可以有效的对安全事件进行评级，并产生高质量的情报源。攻击识别的能力是安全防御的基础，高效精准的识别，才能执行有效的防御方案。</p>
+<p>​    作战（事后）：当识别到攻击时，则要启动对应的作战方案。详细作战能力后面单独细说</p>
+<p><strong>狩猎：</strong></p>
+<p>​    基线建立：业务运转的日常基线建立</p>
+<p>​    异常算法：偏离基线的检测能力，给予安全分析人员分析的起点（避免告警过多，无法运维问题，分批分场景逐步实现监控）</p>
+<p>​    情报驱动：验证新的情报IOC、攻击技战术、漏洞，是否在企业中已经遭受攻击</p>
+<p>​    威胁猎人：资深的安全分析人员、攻防研究人员是威胁狩猎的主要驱动力，它们可以根据日志、流量、内存等证据中去寻找攻击痕迹。</p>
+<h4 id="作战能力"><a href="#作战能力" class="headerlink" title="作战能力"></a>作战能力</h4><p>​    <strong>诱导：</strong>诱导是目前主动防御最常见的技术，MITRE新发布的主动防御框架shield大部分技术也是围绕诱导展开，其背后的核心产品就是蜜罐。诱导我分为目标诱导、内容诱导、结果诱导、动态诱饵几个方面。</p>
+<ul>
+<li><p>​        目标诱导</p>
+<ul>
+<li><p>蜜网：建立真实、丰富的诱饵网络，诱敌深入</p>
+</li>
+<li><p>蜜罐：蜜罐的种类贴近真实环境部署，建议部署诱惑力较大的系统，例如：核心运维系统（AD、堡垒机、终端管理、安全设备）、核心业务系统（数据库、核心业务）、脆弱系统（漏洞系统、弱口令系统、未授权访问系统）</p>
+</li>
+<li>诱饵账号：在操作系统、应用系统防止无人使用的诱饵账号，诱饵账号的可以伪装为管理员、敏感人员（财务、人事、高层等）</li>
+</ul>
+</li>
+<li><p>​        内容诱导</p>
+<ul>
+<li>真实性：多采用高交互蜜罐，避免低交互蜜罐被轻易发现，提高攻击者警惕</li>
+<li>感兴趣内容：多添加符合业务的数据、提高蜜罐的真实性</li>
+</ul>
+</li>
+<li><p>​        结果诱导</p>
+<p>​        当检测到具体攻击时可将流量牵引到对应类型的蜜罐或者蜜网中，并返回攻击成功结果，主动让攻击者进入陷阱。该实现需要基于一定的识别能力，识别攻击方法、攻击目标，将流量牵引到正确的蜜罐上</p>
+</li>
+<li><p>​        动态诱饵</p>
+<p>​        为了更好控制资源，根据攻击者技战术，动态产生相关的诱饵，捕获攻击</p>
+</li>
+</ul>
+<p>​    <strong>反制：</strong>在遭受攻击时正真意义上的反击工作，目前比较常见的方法为反打C2、后台，通过钓鱼方式getshell</p>
+<ul>
+<li><p>​        基础设施反击</p>
+<p>​        该工作目前在GA业务中较为常见，针对一些菠菜、黑产的反向打击、证据提取，主要目标为攻击者的C2服务器、钓鱼站点、后台等黑客基础设施。这部分工作目前大多数是人工进行。</p>
+</li>
+<li><p>​        社会工程</p>
+<ul>
+<li>攻击者信息收集：通过jsonp、cors等跨域信息收集方式（该方法已经被一些插件识别，思路不变，方法可以换，这就体现了对抗性）</li>
+<li>钓鱼蜜罐：通过一些精心布置的蜜罐，反向钓鱼攻击者。例如HVV中常用的VPN客户端下载界面，将后门伪装成VPN客户端等待攻击者下载，人员名单列表文件，利用office漏洞反向攻击</li>
+<li>警告：通过收集的攻击者信息发送邮件、短信警告，停止攻击，情节严重者报警处理</li>
+</ul>
+</li>
+</ul>
+<p>​    <strong>自动化\半自动化：</strong></p>
+<ul>
+<li><p>​        SOAR：SOAR本是该在安全运营中的模块，但主动防御的过程中自动化能力是至关重要的一步，人不能24小时值班，需要借助平台能力自动执行流程。</p>
+<ul>
+<li>流程制定：制定企业风险处理流程、当发生风险是按照具体流程自动\半自动化执行。</li>
+<li>运营经验固化为流程：依托于SOAR平台，根据日常运营经验优化、新建，分析、处置、响应流程，持续增强安全运营能力。</li>
+<li>能力服务化、标准化：将企业安全能力服务化，通过SOAR建立能力中台，提供南北向接口，南向对接设备，北向提供服务。外部调用API即可调用企业安全能力。将企业安全能力标准化，将不同厂家不同设备，相同的能力标准化，对外提供统一接口，通过该接口可调用具备该能力的所有设备。</li>
+</ul>
+</li>
+<li><p>​        响应</p>
+<ul>
+<li><p>权限限制</p>
+<p>当账号失陷后，可自动化降权、关闭，避免重要资产信息泄露。</p>
+</li>
+<li><p>访问限制</p>
+<p>当主机失陷后，可自动化阻断，避免攻击者横向移动。</p>
+</li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/09/MSF-HTTPS默认证书检测/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1876,151 +2075,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/30/Security-备考总结/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="L.Lawliet">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/L.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="L's tale">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/30/Security-备考总结/" itemprop="url">Security+备考总结</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-30T12:39:13+08:00">
-                2019-03-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/心情/" itemprop="url" rel="index">
-                    <span itemprop="name">心情</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>这段时间过完年安排工作计划，并且报了一个Security+的认证一直都没怎么看，上周疯狂抱佛脚加上运气爆棚，居然考了800分还拿了培训机构的2000块现金奖励，心里还是很开心的。很多人问为什么要考这个证书，首先CISSP年限不够呀~关注了一下Security+还是有一些含金量的而且有些潜力，事实证明这个考试还是有些难度的。年轻人多考几个证也不碍事，关键是不太贵，偏向于理论与实战结合。下面简单的给大家分享一下我的备考经历。</p>
-<h3 id="考前准备"><a href="#考前准备" class="headerlink" title="考前准备"></a>考前准备</h3><p>1.针对与新人、学生建议看每一节直播课程，老师会结合自己的工作工作经验讲解课程，可以帮助学生理解知识。<br>2.备考期间建议官方指导手册至少看两遍以上，我在结合自己的做题库时发现有些题目并没有在讲义中提到但在官方指导手册中都有明确说明。在观看官方手册时一定要仔细，任何一个描述都可能成为考点。如果这本书能记下百分之九十，那800分我觉得不在话下。<br>3.拖图题都是原题且比较简单不用担心。<br>4.在备考时有一些同学比较注重刷题，其实知识主要还是在于理解，选择题均不是原题。我建议题库不要超过3-4遍，做完每一遍把错题看一看理解题目的考点。疯狂的刷题会导致在考试时觉得题目非常陌生。</p>
-<h3 id="考试注意"><a href="#考试注意" class="headerlink" title="考试注意"></a>考试注意</h3><p>1.考试的某些题目会和模拟题的题型不同，会有提供一个场景、日志、命令结果等信息让你判断选项，这些题需要理论和验实战知识结合。<br>2.考试遇到某些题目会特别长，需要快速阅读抓住题眼，时间还是比较紧张的，我考试差点没做完~还好后面加速了。<br>3.考试尽量不要在不确定的题目上耽误太长时间，打上标记回头再来想哪个选项的可能性最大。<br>4.做题时不知道怎么选的时候，结合自己的工作经验想一想，如果是你应该怎么做。<br>5.题目一定要多读，理解题目意思，不能想当然，老外喜欢下套。  </p>
-<h3 id="后语"><a href="#后语" class="headerlink" title="后语"></a>后语</h3><p>大家尽量多准备后再去考试，我感觉自己没准备好就去了，最后祝大家考试顺利~~</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2075,7 +2129,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
